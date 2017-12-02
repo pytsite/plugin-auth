@@ -239,10 +239,10 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 
         # Update IP address and geo data
         user.last_ip = _router.request().remote_addr
-        if not user.country and user.geo_ip.country:
-            user.country = user.geo_ip.country
-        if not user.city and user.geo_ip.city:
-            user.city = user.geo_ip.city
+        if not user.country and user.geo_ip['country']:
+            user.country = user.geo_ip['country']
+        if not user.city and user.geo_ip['city']:
+            user.city = user.geo_ip['city']
 
         user.save()
 

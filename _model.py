@@ -155,7 +155,7 @@ class AbstractUser(AuthEntity):
         raise AttributeError("'is_online' attribute is read only.")
 
     @property
-    def geo_ip(self) -> _geo_ip.model.GeoIP:
+    def geo_ip(self) -> dict:
         try:
             return _geo_ip.resolve(self.last_ip)
         except _geo_ip.error.ResolveError:

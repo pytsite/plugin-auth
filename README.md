@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.3 (2017-12-02)
+
+Added support for last `geo_ip` plugin update.
+
+
 ### 1.2 (2017-12-02)
 
 - Added new console command `auth:useradd`.
