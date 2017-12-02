@@ -390,3 +390,7 @@ def count_roles(flt: dict = None) -> int:
     """Count roles
     """
     return get_storage_driver().count_roles(flt)
+
+
+def is_sign_up_enabled() -> bool:
+    return _reg.get('auth.signup_enabled', False)

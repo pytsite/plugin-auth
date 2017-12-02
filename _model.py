@@ -39,7 +39,7 @@ class AuthEntity(_ABC):
         pass
 
     @_abstractmethod
-    def get_field(self, field_name: str) -> _Any:
+    def get_field(self, field_name: str, **kwargs) -> _Any:
         pass
 
     @_abstractmethod
@@ -403,18 +403,8 @@ class AbstractUser(AuthEntity):
         self.set_field('city', value)
 
     @property
-    def profile_view_url(self) -> str:
-        return _router.rule_url('auth_profile@profile_view', {'nickname': self.nickname})
-
-    @property
-    def url(self) -> str:
-        """Shortcut.
-        """
-        return self.profile_view_url
-
-    @property
     def profile_edit_url(self) -> str:
-        return _router.rule_url('auth_profile@profile_edit', {'nickname': self.nickname})
+        return _router.rule_url('auth_ui@profile_edit', {'nickname': self.nickname})
 
     def add_role(self, role: AbstractRole):
         """
@@ -524,7 +514,6 @@ class AbstractUser(AuthEntity):
 
         if self.profile_is_public or current_user == self or current_user.is_admin:
             r.update({
-                'profile_url': self.profile_view_url,
                 'nickname': self.nickname,
                 'picture': {
                     'url': self.picture.get_url(),

@@ -19,6 +19,8 @@ class Authentication(_ABC):
 
     @property
     def name(self) -> str:
+        """Get name of the driver
+        """
         return self.get_name()
 
     @_abstractmethod
@@ -29,34 +31,25 @@ class Authentication(_ABC):
 
     @property
     def description(self) -> str:
+        """Get description of the driver
+        """
         return self.get_description()
 
     @_abstractmethod
-    def get_sign_up_form(self, **kwargs) -> _form.Form:
-        """Get sign in form.
-        """
-        pass
-
-    @_abstractmethod
-    def get_sign_in_form(self, **kwargs) -> _form.Form:
-        """Get sign in form.
-        """
-        pass
-
-    @_abstractmethod
     def sign_up(self, data: dict) -> _model.AbstractUser:
-        """Register new user.
+        """Register a new user
         """
         pass
 
     @_abstractmethod
     def sign_in(self, data: dict) -> _model.AbstractUser:
-        """Authenticate user.
+        """Authenticate an existing user
         """
         pass
 
+    @_abstractmethod
     def sign_out(self, user: _model.AbstractUser):
-        """End user's session.
+        """End user's session
         """
         pass
 
@@ -98,8 +91,4 @@ class Storage(_ABC):
 
     @_abstractmethod
     def count_roles(self, flt: dict = None) -> int:
-        pass
-
-    @_abstractmethod
-    def get_user_modify_form(self, user: _model.AbstractUser = None) -> _form.Form:
         pass
