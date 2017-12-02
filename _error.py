@@ -7,7 +7,11 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 
-class AuthenticationError(Exception):
+class Error(Exception):
+    pass
+
+
+class AuthenticationError(Error):
     def __init__(self, msg: str = None, **kwargs):
         self._msg = msg
 
@@ -17,53 +21,61 @@ class AuthenticationError(Exception):
         return self._msg or _lang.t('auth@authentication_error')
 
 
-class NoDriverRegistered(Exception):
+class NoDriverRegistered(Error):
     pass
 
 
-class DriverNotRegistered(Exception):
+class DriverNotRegistered(Error):
     pass
 
 
-class DriverRegistered(Exception):
+class DriverRegistered(Error):
     pass
 
 
-class RoleNotExist(Exception):
+class RoleNotExist(Error):
     pass
 
 
-class RoleExists(Exception):
+class RoleExists(Error):
     pass
 
 
-class UserNotExist(Exception):
+class UserNotFound(Error):
     pass
 
 
-class UserExists(Exception):
+class UserAlreadyExists(Error):
+    def __init__(self, login: str):
+        self._login = login
+
+    def __str__(self) -> str:
+        return "User with login '{}' is already exist".format(self._login)
+
+
+class UserCreateError(Error):
     pass
 
 
-class InvalidAccessToken(Exception):
+class InvalidAccessToken(Error):
     pass
 
 
-class UserModifyForbidden(Exception):
+class UserModifyForbidden(Error):
     pass
 
 
-class UserDeleteForbidden(Exception):
+class UserDeleteForbidden(Error):
     pass
 
 
-class RoleModifyForbidden(Exception):
+class RoleModifyForbidden(Error):
     pass
 
 
-class RoleDeleteForbidden(Exception):
+class RoleDeleteForbidden(Error):
     pass
 
 
-class NoAdminUser(Exception):
+class NoAdminUser(Error):
     pass

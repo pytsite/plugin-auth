@@ -4,6 +4,13 @@
 ## Changelog
 
 
+### 1.2 (2017-12-02)
+
+- Added new console command `auth:useradd`.
+- Fixed plugin setup hook.
+- Removed unnecessary dependency.
+
+
 ### 1.1 (2017-12-02)
 
 - Added new API function: `is_signup_enabled()`.

@@ -109,12 +109,13 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         # Check user existence
         try:
             get_user(login)
-            raise _error.UserExists("User with login '{}' already exists".format(login))
+            raise _error.UserAlreadyExists(login)
 
-        except _error.UserNotExist:
-            # Check login
-            user_login_rule.value = login
-            user_login_rule.validate()
+        except _error.UserNotFound:
+            try:
+                user_login_rule.validate(login)
+            except _validation.error.RuleError as e:
+                raise _error.UserCreateError('Login validation error: {}'.format(str(e).lower()))
 
     # Create user
     user = get_storage_driver().create_user(login, password)
@@ -123,7 +124,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         # Automatic roles for new users
         roles = []
-        for role_name in _reg.get('auth.signup.roles', ['user']):
+        for role_name in _reg.get('auth.signup_roles', ['user']):
             try:
                 roles.append(get_role(role_name))
             except _error.RoleNotExist:

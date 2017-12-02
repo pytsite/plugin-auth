@@ -10,7 +10,6 @@ user_role_description: 'Звичайний користувач'
 status_active: 'Активний'
 status_disabled: 'Вимкнено'
 status_waiting: 'Очікує підтвердження'
-
 nickname_str_rules: 'Нікнейм повинен містити тільки латинські літери, цифри, крапки, тире, підкреслення, починатися з літери або цифри, і мати довжину від 1 до 32 символів'
 email_cannot_be_empty: 'Email не може бути порожнім'
 passwd_console_command_description: 'Зміна паролю користувача'
@@ -22,4 +21,4 @@ passwords_dont_match: 'Паролі не збігаються'
 password_successfully_changed: 'Пароль користувача :login успішно змінено'
 login_required: 'Ви не зазначили логін користувача'
 unfollow_confirmation: 'Ви дійсно хочете відписатися від цього користувача?'
-
+useradd_console_command_description: 'Додавання користувача'
