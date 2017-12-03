@@ -13,6 +13,11 @@ class UserAdd(_console.Command):
     """auth:useradd Console Command
     """
 
+    def __init__(self):
+        super().__init__()
+
+        self.define_option(_console.option.Str('roles'))
+
     @property
     def name(self) -> str:
         """Get command's name
@@ -34,11 +39,27 @@ class UserAdd(_console.Command):
 
         try:
             _api.switch_user_to_system()
+
             user = _api.create_user(login)
+
+            roles = self.opt('roles')
+            if roles:
+                for role in user.roles:
+                    user.remove_role(role)
+
+                for role_name in roles.split(',') if roles else []:
+                    try:
+                        user.add_role(_api.get_role(role_name)).save()
+
+                    except _error.RoleNotFound as e:
+                        user.delete()
+                        raise e
+
             _api.restore_user()
+
             _console.print_success(_lang.t('auth@user_has_been_created', {'login': login}))
 
-        except (_error.UserCreateError, _error.UserAlreadyExists) as e:
+        except (_error.UserCreateError, _error.UserAlreadyExists, _error.RoleNotFound) as e:
             raise _console.error.Error(e)
 
         try:

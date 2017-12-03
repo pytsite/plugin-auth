@@ -127,7 +127,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         for role_name in _reg.get('auth.signup_roles', ['user']):
             try:
                 roles.append(get_role(role_name))
-            except _error.RoleNotExist:
+            except _error.RoleNotFound:
                 pass
 
         user.roles = roles
@@ -191,9 +191,9 @@ def create_role(name: str, description: str = ''):
     """
     try:
         get_role(name)
-        raise _error.RoleExists("Role with name '{}' already exists.".format(name))
+        raise _error.RoleAlreadyExists(name)
 
-    except _error.RoleNotExist:
+    except _error.RoleNotFound:
         return get_storage_driver().create_role(name, description)
 
 
@@ -204,7 +204,7 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
     if name in ('anonymous', 'user', 'admin'):
         try:
             get_storage_driver().get_role(name)
-        except _error.RoleNotExist:
+        except _error.RoleNotFound:
             switch_user_to_system()
             get_storage_driver().create_role(name, 'auth@{}_role_description'.format(name)).save()
             restore_user()

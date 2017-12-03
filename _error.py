@@ -33,12 +33,20 @@ class DriverRegistered(Error):
     pass
 
 
-class RoleNotExist(Error):
-    pass
+class RoleNotFound(Error):
+    def __init__(self, role_name: str):
+        self._role_name = role_name
+
+    def __str__(self) -> str:
+        return "Role '{}' is not found".format(self._role_name)
 
 
-class RoleExists(Error):
-    pass
+class RoleAlreadyExists(Error):
+    def __init__(self, role_name: str):
+        self._role_name = role_name
+
+    def __str__(self) -> str:
+        return "Role '{}' is already exist".format(self._role_name)
 
 
 class UserNotFound(Error):

@@ -30,32 +30,3 @@ def plugin_load():
     # Console commands
     console.register_command(_console_commands.UserAdd())
     console.register_command(_console_commands.Passwd())
-
-
-def plugin_install():
-    from pytsite import reg, lang, validation, console, util
-
-    if reg.get('env.type') == 'console':
-        # Search for an administrator
-        if count_users({'roles': [get_role('admin')]}):
-            return
-
-        # Create administrator
-        email = input(lang.t('auth@enter_admin_email') + ': ')
-        try:
-            validation.rule.NonEmpty(email, 'auth@email_cannot_be_empty').validate()
-            validation.rule.Email(email).validate()
-        except validation.error.RuleError as e:
-            raise console.error.Error(e)
-
-        switch_user_to_system()
-        admin_user = create_user(email)
-        admin_user.first_name = lang.t('auth@administrator')
-        admin_user.nickname = util.transform_str_2(admin_user.full_name)
-        admin_user.roles = [get_role('admin')]
-        admin_user.save()
-        restore_user()
-        console.print_success(lang.t('auth@user_has_been_created', {'login': admin_user.login}))
-
-        # Set password for created admin
-        console.run_command('auth:passwd', arguments=[admin_user.login])
