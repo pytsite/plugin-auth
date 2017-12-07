@@ -3,7 +3,7 @@
 from pytsite import plugman as _plugman
 
 # Public API
-if _plugman.is_loaded(__name__):
+if _plugman.is_installed(__name__):
     from . import _error as error, _model as model, _driver as driver
     from ._api import get_current_user, get_user_statuses, get_user, create_user, get_role, register_auth_driver, \
         user_nickname_rule, sign_in, get_auth_driver, create_role, verify_password, hash_password, sign_out, \
