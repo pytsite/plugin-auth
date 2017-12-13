@@ -134,7 +134,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
         user.save()
 
-        _events.fire('auth.user.create', user=user)
+        _events.fire('auth@user.create', user=user)
 
     return user
 
@@ -247,7 +247,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
         user.save()
 
     # Login event
-    _events.fire('auth.sign_in', user=user)
+    _events.fire('auth@sign_in', user=user)
 
     return user
 
@@ -310,7 +310,7 @@ def sign_out(user: _model.AbstractUser):
         driver.sign_out(user)
 
     # Notify listeners
-    _events.fire('auth.sign_out', user=user)
+    _events.fire('auth@sign_out', user=user)
 
     # Set anonymous user as current
     switch_user_to_anonymous()

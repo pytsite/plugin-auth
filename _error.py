@@ -15,7 +15,7 @@ class AuthenticationError(Error):
     def __init__(self, msg: str = None, **kwargs):
         self._msg = msg
 
-        _events.fire('auth.sign_in_error', exception=self, user=kwargs.get('user'))
+        _events.fire('auth@sign_in_error', exception=self, user=kwargs.get('user'))
 
     def __str__(self) -> str:
         return self._msg or _lang.t('auth@authentication_error')
