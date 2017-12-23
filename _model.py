@@ -3,6 +3,7 @@
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
+from pytz import timezone as _timezone
 from pytsite import router as _router, util as _util
 from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file
 
@@ -155,7 +156,7 @@ class AbstractUser(AuthEntity):
         raise AttributeError("'is_online' attribute is read only.")
 
     @property
-    def geo_ip(self) -> dict:
+    def geo_ip(self) -> _geo_ip.GeoIP:
         try:
             return _geo_ip.resolve(self.last_ip)
         except _geo_ip.error.ResolveError:
@@ -236,6 +237,22 @@ class AbstractUser(AuthEntity):
     @description.setter
     def description(self, value: str):
         self.set_field('description', value)
+
+    @property
+    def timezone(self) -> str:
+        return self.get_field('timezone')
+
+    @timezone.setter
+    def timezone(self, value: str):
+        self.set_field('timezone', value)
+
+    @property
+    def localtime(self):
+        return _datetime.now(_timezone(self.timezone) if self.timezone else 'UTC')
+
+    @localtime.setter
+    def localtime(self, value):
+        raise AttributeError("'localtime' attribute is read only.")
 
     @property
     def birth_date(self) -> _datetime:
@@ -525,6 +542,7 @@ class AbstractUser(AuthEntity):
                 'first_name': self.first_name,
                 'last_name': self.last_name,
                 'full_name': self.full_name,
+                'timezone': self.timezone,
                 'birth_date': _util.w3c_datetime_str(self.birth_date),
                 'gender': self.gender,
                 'phone': self.phone,

@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.6 (2017-12-23)
+
+New properties in `AbstractUser`: `timezone`, `localtime`.
+
+
 ### 1.5.1 (2017-12-13)
 
 Events names fixed.
