@@ -14,7 +14,7 @@ if _plugman.is_installed(__name__):
         get_access_token_info, switch_user, get_anonymous_user, get_system_user, get_users, get_storage_driver, \
         count_users, count_roles, get_first_admin_user, get_roles, switch_user_to_system, switch_user_to_anonymous, \
         restore_user, generate_access_token, prolong_access_token, register_storage_driver, get_auth_drivers, \
-        revoke_access_token, is_sign_up_enabled
+        revoke_access_token, is_sign_up_enabled, sign_up
 
 
 def plugin_load():

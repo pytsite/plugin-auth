@@ -59,7 +59,7 @@ class UserAdd(_console.Command):
 
             _console.print_success(_lang.t('auth@user_has_been_created', {'login': login}))
 
-        except (_error.UserCreateError, _error.UserAlreadyExists, _error.RoleNotFound) as e:
+        except (_error.UserCreateError, _error.UserExists, _error.RoleNotFound) as e:
             raise _console.error.Error(e)
 
         try:
@@ -98,8 +98,8 @@ class Passwd(_console.Command):
 
         try:
             user = _api.get_user(login)
-        except _error.UserNotFound:
-            raise _console.error.Error(_lang.t('auth@user_is_not_exist', {'login': login}))
+        except _error.UserNotFound as e:
+            raise _console.error.Error(e)
 
         while True:
             pass_1 = _getpass(_lang.t('auth@enter_new_password', {'login': user.login}) + ': ')

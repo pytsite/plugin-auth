@@ -4,6 +4,14 @@
 ## Changelog
 
 
+### 1.7 (2018-01-19)
+
+- New function `sign_up()` added.
+- Function `create_user()` refactored.
+- Exception `SignUpError`.
+- Exception `UserAlreadyExists` renamed to `UserExists`.
+
+
 ### 1.6 (2017-12-23)
 
 New properties in `AbstractUser`: `timezone`, `localtime`.

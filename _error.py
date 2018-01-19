@@ -21,6 +21,16 @@ class AuthenticationError(Error):
         return self._msg or _lang.t('auth@authentication_error')
 
 
+class SignUpError(Error):
+    def __init__(self, msg: str = None, **kwargs):
+        self._msg = msg
+
+        _events.fire('auth@sign_up_error', exception=self, data=kwargs.get('data'))
+
+    def __str__(self) -> str:
+        return self._msg or _lang.t('auth@sign_up_error')
+
+
 class NoDriverRegistered(Error):
     pass
 
@@ -50,15 +60,13 @@ class RoleAlreadyExists(Error):
 
 
 class UserNotFound(Error):
-    pass
-
-
-class UserAlreadyExists(Error):
-    def __init__(self, login: str):
-        self._login = login
-
     def __str__(self) -> str:
-        return "User with login '{}' is already exist".format(self._login)
+        return _lang.t('auth@user_not_found')
+
+
+class UserExists(Error):
+    def __str__(self) -> str:
+        return _lang.t('auth@user_exists')
 
 
 class UserCreateError(Error):
@@ -87,3 +95,8 @@ class RoleDeleteForbidden(Error):
 
 class NoAdminUser(Error):
     pass
+
+
+class SignupDisabled(Error):
+    def __str__(self) -> str:
+        return _lang.t('auth@')

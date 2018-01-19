@@ -23,9 +23,10 @@ _current_user = {}  # user object, per thread
 _previous_user = {}  # user object, per thread
 _access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
 
-user_login_rule = _validation.rule.Email()
-user_nickname_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
-                                            pattern='^[A-Za-z0-9][A-Za-z0-9\.\-_]{0,31}$')
+user_login_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
+                                         pattern='^[A-Za-z0-9][A-Za-z0-9.\-_@]{1,64}$')
+user_nickname_rule = _validation.rule.Regex(msg_id='auth@login_str_rules',
+                                            pattern='^[A-Za-z0-9][A-Za-z0-9.\-_]{0,31}$')
 
 
 def hash_password(secret: str) -> str:
@@ -105,17 +106,21 @@ def get_storage_driver() -> _driver.Storage:
 def create_user(login: str, password: str = None) -> _model.AbstractUser:
     """Create new user
     """
+    if not login:
+        raise _error.UserCreateError(_lang.t('auth@login_str_rules'))
+
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
-        # Check user existence
         try:
+            # Check user existence
             get_user(login)
-            raise _error.UserAlreadyExists(login)
+            raise _error.UserExists()
 
         except _error.UserNotFound:
+            # Check user login
             try:
                 user_login_rule.validate(login)
             except _validation.error.RuleError as e:
-                raise _error.UserCreateError('Login validation error: {}'.format(str(e).lower()))
+                raise _error.UserCreateError(e)
 
     # Create user
     user = get_storage_driver().create_user(login, password)
@@ -397,4 +402,13 @@ def count_roles(flt: dict = None) -> int:
 
 
 def is_sign_up_enabled() -> bool:
+    """Check if the registration of new users is allowed
+    """
     return _reg.get('auth.signup_enabled', False)
+
+
+def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
+    if not is_sign_up_enabled():
+        raise _error.SignupDisabled()
+
+    return get_auth_driver(auth_driver_name).sign_up(data)
