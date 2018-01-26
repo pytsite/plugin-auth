@@ -1,5 +1,9 @@
-"""PytSite Authentication and Authorization Plugin Data Models
+"""PytSite Auth Plugin Data Models
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
@@ -82,11 +86,7 @@ class AbstractRole(AuthEntity):
 
     @property
     def permissions(self) -> _Tuple:
-        if self.name == 'admin':
-            # Admins have all permissions
-            return tuple([p[0] for p in _permissions.get_permissions()])
-        else:
-            return self.get_field('permissions')
+        return self.get_field('permissions')
 
     @permissions.setter
     def permissions(self, value: _Union[_List, _Tuple]):
@@ -140,6 +140,12 @@ class AbstractUser(AuthEntity):
         """Check if the user is anonymous.
         """
         return self.login == SYSTEM_USER_LOGIN
+
+    @property
+    def is_dev(self) -> bool:
+        """Check if the user has the 'admin' role.
+        """
+        return self.has_role('dev')
 
     @property
     def is_admin(self) -> bool:
@@ -475,14 +481,31 @@ class AbstractUser(AuthEntity):
         """
         return self.remove_from_field('blocked_users', self._check_user(user))
 
-    def has_role(self, name: str) -> bool:
+    def has_role(self, name: _Union[str, list, tuple]) -> bool:
         """Checks if the user has a role
         """
+        # System user has all roles
+        if self.is_system:
+            return True
+
+        # Process list of roles
+        if isinstance(name, (list, tuple)):
+            for r in name:
+                if self.has_role(r):
+                    return True
+
+            return False
+
         return name in [role.name for role in self.roles]
 
     def has_permission(self, name: _Union[str, list, tuple]) -> bool:
         """Checks if the user has a permission or one of the permissions
         """
+        # System user has all permissions
+        if self.is_system:
+            return True
+
+        # Process list of permissions
         if isinstance(name, (list, tuple)):
             for p in name:
                 if self.has_permission(p):
@@ -493,10 +516,7 @@ class AbstractUser(AuthEntity):
         # Checking for permission existence
         _permissions.get_permission(name)
 
-        # System and admin users
-        if self.is_system or self.is_admin:
-            return True
-
+        # Search for permission through user's roles
         for role in self.roles:
             if name in role.permissions:
                 return True

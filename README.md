@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.8 (2018-01-26)
+
+New built-in role `dev` added.
+
+
 ### 1.7 (2018-01-19)
 
 - New function `sign_up()` added.

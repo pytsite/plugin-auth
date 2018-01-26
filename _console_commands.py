@@ -1,12 +1,12 @@
-"""PytSite Authentication and Authorization Plugin Console Commands
+"""PytSite Auth Plugin Console Commands
 """
-from getpass import getpass as _getpass
-from pytsite import console as _console, lang as _lang
-from . import _api, _error
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from getpass import getpass as _getpass
+from pytsite import console as _console, lang as _lang
+from . import _api, _error
 
 
 class UserAdd(_console.Command):
@@ -57,7 +57,7 @@ class UserAdd(_console.Command):
 
             _api.restore_user()
 
-            _console.print_success(_lang.t('auth@user_has_been_created', {'login': login}))
+            _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
         except (_error.UserCreateError, _error.UserExists, _error.RoleNotFound) as e:
             raise _console.error.Error(e)

@@ -1,15 +1,15 @@
-"""PytSite Authentication and Authorization Plugin API Functions
+"""PytSite Auth Plugin API Functions
 """
+__author__ = 'Alexander Shepetko'
+__email__ = 'a@shepetko.com'
+__license__ = 'MIT'
+
 from typing import Dict as _Dict, Iterable as _Iterable
 from collections import OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
     validation as _validation, logger as _logger, util as _util, threading as _threading
 from . import _error, _model, _driver
-
-__author__ = 'Alexander Shepetko'
-__email__ = 'a@shepetko.com'
-__license__ = 'MIT'
 
 _authentication_drivers = OrderedDict()  # type: _Dict[str, _driver.Authentication]
 _storage_driver = None  # type: _driver.Storage
@@ -19,8 +19,8 @@ _permissions = []
 _anonymous_user = None
 _system_user = None
 _access_tokens = _cache.create_pool('auth.token_user')  # user.uid: token
-_current_user = {}  # user object, per thread
-_previous_user = {}  # user object, per thread
+_current_user = {}  # Current users, per thread
+_previous_user = {}  # Previous users, per thread
 _access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
 
 user_login_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
@@ -88,9 +88,17 @@ def register_storage_driver(driver: _driver.Storage):
         raise _error.DriverRegistered('Storage driver is already registered')
 
     if not isinstance(driver, _driver.Storage):
-        raise TypeError('Instance of auth.driver.Storage expected')
+        raise TypeError('Instance of {} expected'.format(type(_driver.Storage)))
 
     _storage_driver = driver
+
+    _events.fire('auth@register_storage_driver', driver=driver)
+
+
+def on_register_storage_driver(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@register_storage_driver', handler, priority)
 
 
 def get_storage_driver() -> _driver.Storage:
@@ -104,7 +112,7 @@ def get_storage_driver() -> _driver.Storage:
 
 
 def create_user(login: str, password: str = None) -> _model.AbstractUser:
-    """Create new user
+    """Create a new user
     """
     if not login:
         raise _error.UserCreateError(_lang.t('auth@login_str_rules'))
@@ -145,7 +153,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
 
 def get_user(login: str = None, nickname: str = None, uid: str = None, access_token: str = None) -> _model.AbstractUser:
-    """Get user by login, nickname, access token or UID
+    """Get user
     """
     # Convert access token to user UID
     if access_token:
@@ -192,7 +200,7 @@ def get_system_user() -> _model.AbstractUser:
 
 
 def create_role(name: str, description: str = ''):
-    """Create new role
+    """Create a new role
     """
     try:
         get_role(name)
@@ -203,17 +211,8 @@ def create_role(name: str, description: str = ''):
 
 
 def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
-    """Get role by name or UID
+    """Get a role
     """
-    # These roles must always exist
-    if name in ('anonymous', 'user', 'admin'):
-        try:
-            get_storage_driver().get_role(name)
-        except _error.RoleNotFound:
-            switch_user_to_system()
-            get_storage_driver().create_role(name, 'auth@{}_role_description'.format(name)).save()
-            restore_user()
-
     return get_storage_driver().get_role(name, uid)
 
 
@@ -290,6 +289,8 @@ def generate_access_token(user: _model.AbstractUser) -> str:
 
 
 def revoke_access_token(token: str):
+    """Revoke an access token
+    """
     if not token or not _access_tokens.has(token):
         raise _error.InvalidAccessToken('Invalid access token')
 
@@ -297,14 +298,14 @@ def revoke_access_token(token: str):
 
 
 def prolong_access_token(token: str):
-    """Prolong user's access token
+    """Prolong an access token
     """
     token_info = get_access_token_info(token)
     _access_tokens.put(token, token_info, _access_token_ttl)
 
 
 def sign_out(user: _model.AbstractUser):
-    """Sign out current user
+    """Sign out a user
     """
     # Anonymous user cannot be signed out
     if user.is_anonymous:
@@ -325,7 +326,7 @@ def sign_out(user: _model.AbstractUser):
 
 
 def get_current_user() -> _model.AbstractUser:
-    """Get current user
+    """Get currently signed in user
     """
     user = _current_user.get(_threading.get_id())
     if user:
@@ -345,7 +346,7 @@ def switch_user(user: _model.AbstractUser):
 
 
 def restore_user() -> _model.AbstractUser:
-    """Switch to previous user
+    """Switch back to the previous user
     """
     tid = _threading.get_id()
     _current_user[tid] = _previous_user[tid] if tid in _previous_user else get_anonymous_user()
@@ -408,6 +409,8 @@ def is_sign_up_enabled() -> bool:
 
 
 def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
+    """Register a new user
+    """
     if not is_sign_up_enabled():
         raise _error.SignupDisabled()
 

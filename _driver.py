@@ -1,12 +1,12 @@
-"""PytSite Auth Base Drivers.
+"""PytSite Auth Plugin Drivers
 """
-from typing import Iterable as _Iterable
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from . import _model
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from typing import Iterable as _Iterable
+from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from . import _model
 
 
 class Authentication(_ABC):

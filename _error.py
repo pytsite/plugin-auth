@@ -1,10 +1,10 @@
-"""PytSite Authentication and Authorization Plugin Errors
+"""PytSite Auth Plugin Errors
 """
-from pytsite import events as _events, lang as _lang
-
 __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
+
+from pytsite import events as _events, lang as _lang
 
 
 class Error(Exception):
