@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.8.1 (2018-02-07)
+
+Support for PytSite-7.7.
+
+
 ### 1.8 (2018-01-26)
 
 New built-in role `dev` added.

@@ -60,7 +60,7 @@ class UserAdd(_console.Command):
             _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
         except (_error.UserCreateError, _error.UserExists, _error.RoleNotFound) as e:
-            raise _console.error.Error(e)
+            raise _console.error.CommandExecutionError(e)
 
         try:
             _console.run_command('auth:passwd', arguments=[login])
@@ -99,12 +99,12 @@ class Passwd(_console.Command):
         try:
             user = _api.get_user(login)
         except _error.UserNotFound as e:
-            raise _console.error.Error(e)
+            raise _console.error.CommandExecutionError(e)
 
         while True:
             pass_1 = _getpass(_lang.t('auth@enter_new_password', {'login': user.login}) + ': ')
             if not pass_1:
-                raise _console.error.Error(_lang.t('auth@password_cannot_be_empty'))
+                raise _console.error.CommandExecutionError(_lang.t('auth@password_cannot_be_empty'))
 
             pass_2 = _getpass(_lang.t('auth@retype_password') + ': ')
 
@@ -120,4 +120,4 @@ class Passwd(_console.Command):
             _console.print_success(_lang.t('auth@password_successfully_changed', {'login': user.login}))
 
         except Exception as e:
-            raise _console.error.Error(str(e))
+            raise _console.error.CommandExecutionError(e)
