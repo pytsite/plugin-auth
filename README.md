@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.9 (2018-02-08)
+
+New console command added: `auth:usermod`.
+
+
 ### 1.8.1 (2018-02-07)
 
 Support for PytSite-7.7.

@@ -44,9 +44,11 @@ class UserAdd(_console.Command):
 
             roles = self.opt('roles')
             if roles:
+                # Remove any existing roles
                 for role in user.roles:
                     user.remove_role(role)
 
+                # Add specified roles
                 for role_name in roles.split(',') if roles else []:
                     try:
                         user.add_role(_api.get_role(role_name)).save()
@@ -55,22 +57,80 @@ class UserAdd(_console.Command):
                         user.delete()
                         raise e
 
-            _api.restore_user()
-
             _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
-        except (_error.UserCreateError, _error.UserExists, _error.RoleNotFound) as e:
+        except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
 
+        finally:
+            _api.restore_user()
+
+        # Set password of the user
         try:
             _console.run_command('auth:passwd', arguments=[login])
-
         except _console.error.Error as e:
             _api.switch_user_to_system()
             user.delete()
             _api.restore_user()
-
             raise e
+
+
+class UserMod(_console.Command):
+    """auth:usermod Console Command
+    """
+
+    def __init__(self):
+        super().__init__()
+
+        self.define_option(_console.option.Str('roles'))
+
+    @property
+    def name(self) -> str:
+        """Get command's name
+        """
+        return 'auth:usermod'
+
+    @property
+    def description(self) -> str:
+        """Get command's description
+        """
+        return 'auth@usermod_console_command_description'
+
+    def exec(self):
+        """Execute the command
+        """
+        login = self.arg(0)
+        if not login:
+            raise _console.error.MissingArgument('auth@login_required', 0)
+
+        try:
+            _api.switch_user_to_system()
+
+            user = _api.get_user(login)
+
+            roles = self.opt('roles')
+            if roles:
+                # Remove all attached roles
+                for role in user.roles:
+                    user.remove_role(role)
+
+                # Add new roles
+                for role_name in roles.split(',') if roles else []:
+                    try:
+                        user.add_role(_api.get_role(role_name)).save()
+                    except _error.RoleNotFound as e:
+                        _console.print_warning(e)
+
+            else:
+                raise _console.error.MissingOption(list(self._opts.keys()))
+
+            _console.print_success(_lang.t('auth@user_modified', {'login': login}))
+
+        except _error.Error as e:
+            raise _console.error.CommandExecutionError(e)
+
+        finally:
+            _api.restore_user()
 
 
 class Passwd(_console.Command):

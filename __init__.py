@@ -33,8 +33,9 @@ def plugin_load():
 
 def plugin_load_console():
     from pytsite import console
-    from . import _console_commands
+    from . import _cc
 
     # Console commands
-    console.register_command(_console_commands.UserAdd())
-    console.register_command(_console_commands.Passwd())
+    console.register_command(_cc.UserAdd())
+    console.register_command(_cc.UserMod())
+    console.register_command(_cc.Passwd())
