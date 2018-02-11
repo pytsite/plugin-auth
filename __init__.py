@@ -17,7 +17,7 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
 def plugin_load():
     """Init wrapper
     """
-    from pytsite import lang, events
+    from pytsite import lang
     from plugins import permissions
     from . import _eh
 

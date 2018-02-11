@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.9.1 (2018-02-11)
+
+Build-in roles' description checking added.
+
+
 ### 1.9 (2018-02-08)
 
 New console command added: `auth:usermod`.
