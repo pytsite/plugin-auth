@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.9.2 (2018-02-13)
+
+Build-in roles' description checking fixed.
+
+
 ### 1.9.1 (2018-02-11)
 
 Build-in roles' description checking added.

@@ -16,8 +16,10 @@ def register_storage_driver(driver: _driver.Storage):
             role = _api.get_storage_driver().get_role(name)
             valid_desc = 'auth@{}_role_description'.format(name)
             if role.description != valid_desc:
+                _api.switch_user_to_system()
                 role.description = valid_desc
                 role.save()
+                _api.restore_user()
 
         except _error.RoleNotFound:
             # Create role
