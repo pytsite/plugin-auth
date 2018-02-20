@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.10 (2018-02-20)
+
+New property `AbstractUser.is_admin_or_dev` added.
+
+
 ### 1.9.2 (2018-02-13)
 
 Build-in roles' description checking fixed.

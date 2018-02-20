@@ -142,16 +142,22 @@ class AbstractUser(AuthEntity):
         return self.login == SYSTEM_USER_LOGIN
 
     @property
-    def is_dev(self) -> bool:
-        """Check if the user has the 'admin' role.
-        """
-        return self.has_role('dev')
-
-    @property
     def is_admin(self) -> bool:
         """Check if the user has the 'admin' role.
         """
         return self.has_role('admin')
+
+    @property
+    def is_dev(self) -> bool:
+        """Check if the user has the 'dev' role.
+        """
+        return self.has_role('dev')
+
+    @property
+    def is_admin_or_dev(self) -> bool:
+        """Check if the user has the 'admin' or 'dev' role.
+        """
+        return self.has_role(['admin', 'dev'])
 
     @property
     def is_online(self) -> bool:
