@@ -59,6 +59,9 @@ class AuthEntity(_ABC):
     def sub_from_field(self, field_name: str, value):
         return self
 
+    def __eq__(self, other) -> bool:
+        return isinstance(other, self.__class__) and other.uid == self.uid
+
 
 class AbstractRole(AuthEntity):
     """Abstract Role Model
@@ -592,6 +595,3 @@ class AbstractUser(AuthEntity):
             })
 
         return r
-
-    def __eq__(self, other) -> bool:
-        return isinstance(other, self.__class__) and other.uid == self.uid

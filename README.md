@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.11.1 (2018-03-24)
+
+Location of `__eq__` moved up in model's hierarchy.
+
+
 ### 1.11 (2018-03-24)
 
 `model.AuthEntity.remove_from_field()` renamed to
