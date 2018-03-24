@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 1.11 (2018-03-24)
+
+`model.AuthEntity.remove_from_field()` renamed to
+`model.AuthEntity.sub_from_field()`
+
+
 ### 1.10 (2018-02-20)
 
 New property `AbstractUser.is_admin_or_dev` added.

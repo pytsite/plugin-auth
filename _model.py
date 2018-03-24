@@ -33,11 +33,11 @@ class AuthEntity(_ABC):
 
     @_abstractmethod
     def save(self):
-        pass
+        return self
 
     @_abstractmethod
     def delete(self):
-        pass
+        return self
 
     @_abstractmethod
     def has_field(self, field_name: str) -> bool:
@@ -49,15 +49,15 @@ class AuthEntity(_ABC):
 
     @_abstractmethod
     def set_field(self, field_name: str, value):
-        pass
+        return self
 
     @_abstractmethod
     def add_to_field(self, field_name: str, value):
-        pass
+        return self
 
     @_abstractmethod
-    def remove_from_field(self, field_name: str, value):
-        pass
+    def sub_from_field(self, field_name: str, value):
+        return self
 
 
 class AbstractRole(AuthEntity):
@@ -165,7 +165,7 @@ class AbstractUser(AuthEntity):
 
     @is_online.setter
     def is_online(self, value):
-        raise AttributeError("'is_online' attribute is read only.")
+        raise AttributeError("'is_online' attribute is read only")
 
     @property
     def geo_ip(self) -> _geo_ip.GeoIP:
@@ -176,7 +176,7 @@ class AbstractUser(AuthEntity):
 
     @geo_ip.setter
     def geo_ip(self, value):
-        raise AttributeError("'geo_ip' attribute is read only.")
+        raise AttributeError("'geo_ip' attribute is read only")
 
     @property
     def created(self) -> _datetime:
@@ -184,7 +184,7 @@ class AbstractUser(AuthEntity):
 
     @created.setter
     def created(self, value):
-        raise AttributeError("'created' attribute is read only.")
+        raise AttributeError("'created' attribute is read only")
 
     @property
     def login(self) -> str:
@@ -264,7 +264,7 @@ class AbstractUser(AuthEntity):
 
     @localtime.setter
     def localtime(self, value):
-        raise AttributeError("'localtime' attribute is read only.")
+        raise AttributeError("'localtime' attribute is read only")
 
     @property
     def birth_date(self) -> _datetime:
@@ -445,7 +445,7 @@ class AbstractUser(AuthEntity):
         """
         :rtype: AbstractUser
         """
-        return self.remove_from_field('roles', role)
+        return self.sub_from_field('roles', role)
 
     def is_follows(self, user_to_check) -> bool:
         """
@@ -471,7 +471,7 @@ class AbstractUser(AuthEntity):
         :type user_to_unfollow: AbstractUser
         :rtype: AbstractUser
         """
-        return self.remove_from_field('follows', self._check_user(user_to_unfollow))
+        return self.sub_from_field('follows', self._check_user(user_to_unfollow))
 
     def add_blocked_user(self, user):
         """
@@ -485,7 +485,7 @@ class AbstractUser(AuthEntity):
         :type user: AbstractUser
         :rtype: AbstractUser
         """
-        return self.remove_from_field('blocked_users', self._check_user(user))
+        return self.sub_from_field('blocked_users', self._check_user(user))
 
     def has_role(self, name: _Union[str, list, tuple]) -> bool:
         """Checks if the user has a role
