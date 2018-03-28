@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 1.11.2 (2018-03-28)
+
+Unnecessary property `AbstractUser.profile_edit_url` removed.
+
+
 ### 1.11.1 (2018-03-24)
 
 Location of `__eq__` moved up in model's hierarchy.

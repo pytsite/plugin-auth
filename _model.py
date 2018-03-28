@@ -434,10 +434,6 @@ class AbstractUser(AuthEntity):
     def city(self, value: str):
         self.set_field('city', value)
 
-    @property
-    def profile_edit_url(self) -> str:
-        return _router.rule_url('auth_ui@profile_edit', {'nickname': self.nickname})
-
     def add_role(self, role: AbstractRole):
         """
         :rtype: AbstractUser
