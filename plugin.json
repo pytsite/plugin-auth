@@ -1,6 +1,6 @@
 {
   "name": "auth",
-  "version": "1.11.2",
+  "version": "2.0",
   "description": {
     "en": "Authentication and Authorization",
     "ru": "Аутентификация и авторизация",
@@ -17,7 +17,8 @@
     "plugins": [
       "permissions",
       "file",
-      "geo_ip"
+      "geo_ip",
+      "query>=1.0"
     ]
   }
 }

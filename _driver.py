@@ -4,8 +4,9 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Iterable as _Iterable
+from typing import Iterator as _Iterator, List as _List, Tuple as _Tuple
 from abc import ABC as _ABC, abstractmethod as _abstractmethod
+from plugins import query as _query
 from . import _model
 
 
@@ -67,8 +68,8 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def get_roles(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
-                  skip: int = 0) -> _Iterable[_model.AbstractRole]:
+    def find_roles(self, query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = None,
+                   skip: int = 0) -> _Iterator[_model.AbstractRole]:
         pass
 
     @_abstractmethod
@@ -80,8 +81,8 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def get_users(self, flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = None,
-                  skip: int = 0) -> _Iterable[_model.AbstractUser]:
+    def find_users(self, query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = None,
+                   skip: int = 0) -> _Iterator[_model.AbstractUser]:
         pass
 
     @_abstractmethod

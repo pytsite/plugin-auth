@@ -8,7 +8,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
 from pytz import timezone as _timezone
-from pytsite import router as _router, util as _util
+from pytsite import util as _util
 from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
@@ -212,6 +212,14 @@ class AbstractUser(AuthEntity):
     @password.setter
     def password(self, value: str):
         self.set_field('password', value)
+
+    @property
+    def confirmation_hash(self) -> str:
+        return self.get_field('confirmation_hash')
+
+    @confirmation_hash.setter
+    def confirmation_hash(self, value: str):
+        self.set_field('confirmation_hash', value)
 
     @property
     def nickname(self) -> str:
@@ -554,7 +562,7 @@ class AbstractUser(AuthEntity):
             'uid': self.uid,
         }
 
-        if self.profile_is_public or current_user == self or current_user.is_admin:
+        if self.profile_is_public or current_user == self or current_user.is_admin_or_dev:
             r.update({
                 'nickname': self.nickname,
                 'picture': {
@@ -578,7 +586,7 @@ class AbstractUser(AuthEntity):
                 'is_followed': self.is_followed(current_user),
             })
 
-        if current_user == self or current_user.is_admin:
+        if current_user == self or current_user.is_admin_or_dev:
             r.update({
                 'created': _util.w3c_datetime_str(self.created),
                 'login': self.login,

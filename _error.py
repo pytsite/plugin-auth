@@ -99,4 +99,4 @@ class NoAdminUser(Error):
 
 class SignupDisabled(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@')
+        return _lang.t('auth@signup_is_disabled')

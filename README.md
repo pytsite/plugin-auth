@@ -4,6 +4,19 @@
 ## Changelog
 
 
+### 2.0 (2018-04-06)
+
+- New API functions added: `get_new_user_status()`,
+  `is_sign_up_confirmation_required()`.
+- `get_first_admin_user()` renamed to `get_admin_user()` and got
+  modified constructor's signature.
+- `get_users()` renamed to `find_users()` and got modified constructor's
+  signature.
+- `get_roles()` renamed to `find_roles()` and got modified constructor's
+  signature.
+- Fixed a couple of minor issues.
+
+
 ### 1.11.2 (2018-03-28)
 
 Unnecessary property `AbstractUser.profile_edit_url` removed.

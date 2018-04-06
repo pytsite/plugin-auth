@@ -4,11 +4,12 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Dict as _Dict, Iterable as _Iterable
+from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple
 from collections import OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
     validation as _validation, logger as _logger, util as _util, threading as _threading
+from plugins import query as _query
 from . import _error, _model, _driver
 
 _authentication_drivers = OrderedDict()  # type: _Dict[str, _driver.Authentication]
@@ -137,7 +138,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         # Automatic roles for new users
         roles = []
-        for role_name in _reg.get('auth.signup_roles', ['user']):
+        for role_name in _reg.get('auth.new_user_roles', ['user']):
             try:
                 roles.append(get_role(role_name))
             except _error.RoleNotFound:
@@ -168,15 +169,17 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
     return user
 
 
-def get_first_admin_user() -> _model.AbstractUser:
+def get_admin_user(sort: _List[_Tuple[str, int]] = None, skip: int = 0) -> _model.AbstractUser:
     """Get first created user which has 'admin' role
     """
-    users = list(get_users({'roles': [get_role('admin')]}, sort_field='created', limit=1))
+    try:
+        if sort is None:
+            sort = [('created', 1)]
 
-    if not users:
-        raise _error.NoAdminUser('No admin user created yet.')
+        return next(find_users(_query.Query(_query.Eq('roles', get_role('admin'))), sort, limit=1, skip=skip))
 
-    return users[0]
+    except StopIteration:
+        raise _error.NoAdminUser('No admin user found')
 
 
 def get_anonymous_user() -> _model.AbstractUser:
@@ -224,7 +227,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
         user = get_auth_driver(auth_driver_name).sign_in(data)
 
         if user.status != 'active':
-            raise _error.AuthenticationError("User account '{}' is not active.".format(user.login))
+            raise _error.AuthenticationError("User account '{}' is not active".format(user.login))
 
         switch_user(user)
 
@@ -376,18 +379,24 @@ def get_user_statuses() -> tuple:
     )
 
 
-def get_users(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
-              skip: int = 0) -> _Iterable[_model.AbstractUser]:
-    """Get users iterable
+def get_new_user_status() -> str:
+    """Get status of newly created user
     """
-    return get_storage_driver().get_users(flt, sort_field, sort_order, limit, skip)
+    return _reg.get('auth.new_user_status', 'waiting')
 
 
-def get_roles(flt: dict = None, sort_field: str = None, sort_order: int = 1, limit: int = 0,
-              skip: int = 0) -> _Iterable[_model.AbstractRole]:
+def find_users(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
+               skip: int = 0) -> _Iterator[_model.AbstractUser]:
+    """Find users
+    """
+    return get_storage_driver().find_users(query, sort, limit, skip)
+
+
+def find_roles(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
+               skip: int = 0) -> _Iterator[_model.AbstractRole]:
     """Get roles iterable
     """
-    return get_storage_driver().get_roles(flt, sort_field, sort_order, limit, skip)
+    return get_storage_driver().find_roles(query, sort, limit, skip)
 
 
 def count_users(flt: dict = None) -> int:
@@ -408,10 +417,25 @@ def is_sign_up_enabled() -> bool:
     return _reg.get('auth.signup_enabled', False)
 
 
+def is_sign_up_confirmation_required() -> bool:
+    """Check if the confirmation of the registration of new users is required
+    """
+    return _reg.get('auth.signup_confirmation_required', True)
+
+
 def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Register a new user
     """
     if not is_sign_up_enabled():
         raise _error.SignupDisabled()
 
-    return get_auth_driver(auth_driver_name).sign_up(data)
+    user = get_auth_driver(auth_driver_name).sign_up(data)
+    user.status = get_new_user_status()
+    if is_sign_up_confirmation_required():
+        user.confirmation_hash = _util.random_str(64)
+
+    switch_user_to_system()
+    user.save()
+    restore_user()
+
+    return user
