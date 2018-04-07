@@ -1,6 +1,6 @@
 {
   "name": "auth",
-  "version": "2.0",
+  "version": "2.1",
   "description": {
     "en": "Authentication and Authorization",
     "ru": "Аутентификация и авторизация",

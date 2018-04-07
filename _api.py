@@ -169,17 +169,26 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
     return user
 
 
-def get_admin_user(sort: _List[_Tuple[str, int]] = None, skip: int = 0) -> _model.AbstractUser:
+def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
+                    skip: int = 0) -> _Iterator[_model.AbstractUser]:
+    if sort is None:
+        sort = [('created', 1)]
+
+    q = _query.Query(_query.Eq('roles', get_role('admin')))
+    if active_only:
+        q.add(_query.Eq('status', 'active'))
+
+    return find_users(q, sort, limit=1, skip=skip)
+
+
+def get_admin_user(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
+                   skip: int = 0) -> _model.AbstractUser:
     """Get first created user which has 'admin' role
     """
     try:
-        if sort is None:
-            sort = [('created', 1)]
-
-        return next(find_users(_query.Query(_query.Eq('roles', get_role('admin'))), sort, limit=1, skip=skip))
-
+        return next(get_admin_users(sort, active_only, skip))
     except StopIteration:
-        raise _error.NoAdminUser('No admin user found')
+        raise _error.UserNotFound()
 
 
 def get_anonymous_user() -> _model.AbstractUser:
@@ -423,6 +432,12 @@ def is_sign_up_confirmation_required() -> bool:
     return _reg.get('auth.signup_confirmation_required', True)
 
 
+def is_sign_up_admins_notification_enabled() -> bool:
+    """Check if the notification of admins about new users registration is enabled
+    """
+    return _reg.get('auth.signup_admins_notification_enabled', True)
+
+
 def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Register a new user
     """
@@ -431,6 +446,7 @@ def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 
     user = get_auth_driver(auth_driver_name).sign_up(data)
     user.status = get_new_user_status()
+
     if is_sign_up_confirmation_required():
         user.confirmation_hash = _util.random_str(64)
 

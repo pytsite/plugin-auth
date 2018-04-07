@@ -93,10 +93,6 @@ class RoleDeleteForbidden(Error):
     pass
 
 
-class NoAdminUser(Error):
-    pass
-
-
 class SignupDisabled(Error):
     def __str__(self) -> str:
         return _lang.t('auth@signup_is_disabled')

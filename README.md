@@ -4,6 +4,13 @@
 ## Changelog
 
 
+### 2.1 (2018-04-07)
+
+- New API functions: `get_admin_users()`,
+  `is_sign_up_admins_notification_enabled()`.
+- New property: `AbstractUser.is_confirmed`.
+
+
 ### 2.0 (2018-04-06)
 
 - New API functions added: `get_new_user_status()`,

@@ -12,7 +12,7 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     count_users, count_roles, get_admin_user, find_roles, switch_user_to_system, switch_user_to_anonymous, \
     restore_user, generate_access_token, prolong_access_token, register_storage_driver, get_auth_drivers, \
     revoke_access_token, is_sign_up_enabled, sign_up, on_register_storage_driver, is_sign_up_confirmation_required, \
-    get_new_user_status
+    get_new_user_status, is_sign_up_admins_notification_enabled, get_admin_users
 from ._model import AuthEntity, AbstractRole, AbstractUser
 
 
