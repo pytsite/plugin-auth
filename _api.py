@@ -408,16 +408,16 @@ def find_roles(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None,
     return get_storage_driver().find_roles(query, sort, limit, skip)
 
 
-def count_users(flt: dict = None) -> int:
+def count_users(query: _query.Query = None) -> int:
     """Count users
     """
-    return get_storage_driver().count_users(flt)
+    return get_storage_driver().count_users(query)
 
 
-def count_roles(flt: dict = None) -> int:
+def count_roles(query: _query.Query = None) -> int:
     """Count roles
     """
-    return get_storage_driver().count_roles(flt)
+    return get_storage_driver().count_roles(query)
 
 
 def is_sign_up_enabled() -> bool:

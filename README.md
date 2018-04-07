@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.1.1 (2018-04-07)
+
+Signatures of `count_users()` and `count_roles` fixed.
+
+
 ### 2.1 (2018-04-07)
 
 - New API functions: `get_admin_users()`,

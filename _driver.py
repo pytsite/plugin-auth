@@ -86,9 +86,9 @@ class Storage(_ABC):
         pass
 
     @_abstractmethod
-    def count_users(self, flt: dict = None) -> int:
+    def count_users(self, query: _query.Query = None) -> int:
         pass
 
     @_abstractmethod
-    def count_roles(self, flt: dict = None) -> int:
+    def count_roles(self, query: _query.Query = None) -> int:
         pass
