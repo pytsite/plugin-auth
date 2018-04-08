@@ -27,3 +27,4 @@ useradd_console_command_description: 'Додавання користувача'
 usermod_console_command_description: 'Зміна користувача'
 signup_is_disabled: 'Реєстрацію нових користувачів відключено'
 user_modified: 'Користувача змінено: :login'
+role_used_by_user: "Роль ':role' використовується обліковим записом ':user'"

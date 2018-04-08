@@ -8,8 +8,8 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
 from pytz import timezone as _timezone
-from pytsite import util as _util, events as _events
-from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file
+from pytsite import util as _util, events as _events, errors as _errors, lang as _lang
+from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file, query as _query
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 SYSTEM_USER_LOGIN = 'system@system.system'
@@ -22,8 +22,13 @@ class AuthEntity(_ABC):
     @property
     @_abstractmethod
     def uid(self) -> str:
-        """Get UID of the entity.
+        """Get UID of the entity
         """
+        raise NotImplementedError()
+
+    @property
+    @_abstractmethod
+    def is_new(self) -> bool:
         raise NotImplementedError()
 
     @property
@@ -31,33 +36,38 @@ class AuthEntity(_ABC):
     def is_modified(self) -> str:
         raise NotImplementedError()
 
+    @property
+    @_abstractmethod
+    def created(self) -> _datetime:
+        raise NotImplementedError()
+
     @_abstractmethod
     def save(self):
-        return self
+        raise NotImplementedError()
 
     @_abstractmethod
     def delete(self):
-        return self
+        raise NotImplementedError()
 
     @_abstractmethod
     def has_field(self, field_name: str) -> bool:
-        pass
+        raise NotImplementedError()
 
     @_abstractmethod
     def get_field(self, field_name: str, **kwargs) -> _Any:
-        pass
+        raise NotImplementedError()
 
     @_abstractmethod
     def set_field(self, field_name: str, value):
-        return self
+        raise NotImplementedError()
 
     @_abstractmethod
     def add_to_field(self, field_name: str, value):
-        return self
+        raise NotImplementedError()
 
     @_abstractmethod
     def sub_from_field(self, field_name: str, value):
-        return self
+        raise NotImplementedError()
 
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and other.uid == self.uid
@@ -101,6 +111,39 @@ class AbstractRole(AuthEntity):
 
     def remove_permission(self, perm: str):
         self.permissions = [p[0] for p in self.permissions if p[0] != perm]
+
+    @_abstractmethod
+    def do_save(self):
+        """Does actual saving of the user
+        """
+        raise NotImplementedError()
+
+    def save(self):
+        _events.fire('auth@role_pre_save', role=self)
+        self.do_save()
+        _events.fire('auth@role_save', role=self)
+
+        return self
+
+    @_abstractmethod
+    def do_delete(self):
+        """Does actual deletion of the user
+        """
+        raise NotImplementedError()
+
+    def delete(self):
+        from . import _api
+
+        # Check if the role is used by users
+        user = _api.find_user(_query.Query(_query.Eq('roles', self)))
+        if user:
+            raise _errors.ForbidDeletion(_lang.t('role_used_by_user', {'role': self, 'user': user.login}))
+
+        _events.fire('auth@role_pre_delete', user=self)
+        self.do_delete()
+        _events.fire('auth@role_delete', user=self)
+
+        return self
 
 
 class AbstractUser(AuthEntity):
@@ -180,14 +223,6 @@ class AbstractUser(AuthEntity):
     @geo_ip.setter
     def geo_ip(self, value):
         raise AttributeError("'geo_ip' attribute is read only")
-
-    @property
-    def created(self) -> _datetime:
-        return self.get_field('created')
-
-    @created.setter
-    def created(self, value):
-        raise AttributeError("'created' attribute is read only")
 
     @property
     def login(self) -> str:
@@ -445,10 +480,6 @@ class AbstractUser(AuthEntity):
     @city.setter
     def city(self, value: str):
         self.set_field('city', value)
-
-    @property
-    def is_new(self) -> bool:
-        return self.get_field('is_new')
 
     def add_role(self, role: AbstractRole):
         """

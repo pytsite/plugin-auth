@@ -4,7 +4,7 @@ __author__ = 'Alexander Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple
+from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple, Optional as _Optional
 from collections import OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
@@ -401,11 +401,27 @@ def find_users(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None,
     return get_storage_driver().find_users(query, sort, limit, skip)
 
 
+def find_user(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
+              skip: int = 0) -> _Optional[_model.AbstractUser]:
+    try:
+        return next(find_users(query, sort, limit, skip))
+    except StopIteration:
+        return None
+
+
 def find_roles(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
                skip: int = 0) -> _Iterator[_model.AbstractRole]:
     """Get roles iterable
     """
     return get_storage_driver().find_roles(query, sort, limit, skip)
+
+
+def find_role(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
+              skip: int = 0) -> _Optional[_model.AbstractRole]:
+    try:
+        return next(find_roles(query, sort, limit, skip))
+    except StopIteration:
+        return None
 
 
 def count_users(query: _query.Query = None) -> int:
@@ -455,6 +471,30 @@ def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     restore_user()
 
     return user
+
+
+def on_role_pre_save(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@role_pre_save', handler, priority)
+
+
+def on_role_save(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@role_save', handler, priority)
+
+
+def on_role_pre_delete(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@role_pre_delete', handler, priority)
+
+
+def on_role_delete(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@role_delete', handler, priority)
 
 
 def on_user_pre_save(handler, priority: int = 0):

@@ -4,6 +4,15 @@
 ## Changelog
 
 
+### 2.3 (2018-04-08)
+
+- New properties and methods added to `AbstractRole`: `do_save()`,
+  `do_delete()`.
+- New API functions added: `find_role()`, `find_user()`,
+  `on_role_pre_save()`, `on_role_save()`, `on_role_pre_delete()`,
+  `on_role_delete()`.
+
+
 ### 2.2 (2018-04-08)
 
 - New properties and methods added to `AbstractUser`: `is_new`,

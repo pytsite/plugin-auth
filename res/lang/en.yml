@@ -27,3 +27,4 @@ useradd_console_command_description: 'Add a new user'
 usermod_console_command_description: 'Modify a user'
 signup_is_disabled: 'Signup is disabled'
 user_modified: 'User has been modified: :login'
+role_used_by_user: "Role ':role' is used by user ':user'"
