@@ -455,3 +455,27 @@ def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     restore_user()
 
     return user
+
+
+def on_user_pre_save(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_pre_save', handler, priority)
+
+
+def on_user_save(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_save', handler, priority)
+
+
+def on_user_pre_delete(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_pre_delete', handler, priority)
+
+
+def on_user_delete(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_delete', handler, priority)

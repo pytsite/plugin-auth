@@ -4,6 +4,15 @@
 ## Changelog
 
 
+### 2.2 (2018-04-08)
+
+- New properties and methods added to `AbstractUser`: `is_new`,
+  `do_save()`, `do_delete()`.
+- User-related events added.
+- New API functions added: `on_user_pre_save()`, `on_user_save()`,
+  `on_user_pre_delete()`, `on_user_delete()`.
+
+
 ### 2.1.1 (2018-04-07)
 
 Signatures of `count_users()` and `count_roles` fixed.

@@ -8,7 +8,7 @@ from abc import ABC as _ABC, abstractmethod as _abstractmethod
 from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
 from datetime import datetime as _datetime
 from pytz import timezone as _timezone
-from pytsite import util as _util
+from pytsite import util as _util, events as _events
 from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
@@ -446,6 +446,10 @@ class AbstractUser(AuthEntity):
     def city(self, value: str):
         self.set_field('city', value)
 
+    @property
+    def is_new(self) -> bool:
+        return self.get_field('is_new')
+
     def add_role(self, role: AbstractRole):
         """
         :rtype: AbstractUser
@@ -540,6 +544,12 @@ class AbstractUser(AuthEntity):
 
         return False
 
+    @_abstractmethod
+    def do_save(self):
+        """Does actual saving of the user
+        """
+        raise NotImplementedError()
+
     def save(self):
         if self.is_anonymous:
             raise RuntimeError('Anonymous user cannot be saved')
@@ -547,14 +557,30 @@ class AbstractUser(AuthEntity):
         if self.is_system:
             raise RuntimeError('System user cannot be saved')
 
+        _events.fire('auth@user_pre_save', user=self)
+        self.do_save()
+        _events.fire('auth@user_save', user=self)
+
         return self
 
+    @_abstractmethod
+    def do_delete(self):
+        """Does actual deletion of the user
+        """
+        raise NotImplementedError()
+
     def delete(self):
+        _events.fire('auth@user_pre_delete', user=self)
+
         for user in self.follows:
             self.remove_follows(user)
 
         for user in self.blocked_users:
             self.remove_blocked_user(user)
+
+        self.do_delete()
+
+        _events.fire('auth@user_delete', user=self)
 
         return self
 
