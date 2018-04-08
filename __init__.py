@@ -14,7 +14,7 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     get_auth_drivers, revoke_access_token, is_sign_up_enabled, sign_up, on_register_storage_driver, \
     is_sign_up_confirmation_required, get_new_user_status, is_sign_up_admins_notification_enabled, get_admin_users, \
     on_role_pre_save, on_role_save, on_role_pre_delete, on_role_delete, on_user_pre_save, on_user_save, \
-    on_user_pre_delete, on_user_delete
+    on_user_create, on_user_pre_delete, on_user_delete
 from ._model import AuthEntity, AbstractRole, AbstractUser
 
 

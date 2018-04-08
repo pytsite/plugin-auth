@@ -72,6 +72,9 @@ class AuthEntity(_ABC):
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and other.uid == self.uid
 
+    def __str__(self) -> str:
+        return self.uid
+
 
 class AbstractRole(AuthEntity):
     """Abstract Role Model
@@ -145,6 +148,9 @@ class AbstractRole(AuthEntity):
 
         return self
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class AbstractUser(AuthEntity):
     """Abstract User Model
@@ -209,20 +215,12 @@ class AbstractUser(AuthEntity):
     def is_online(self) -> bool:
         return (_datetime.now() - self.last_activity).seconds < 180
 
-    @is_online.setter
-    def is_online(self, value):
-        raise AttributeError("'is_online' attribute is read only")
-
     @property
     def geo_ip(self) -> _geo_ip.GeoIP:
         try:
             return _geo_ip.resolve(self.last_ip)
         except _geo_ip.error.ResolveError:
             return _geo_ip.resolve('0.0.0.0')
-
-    @geo_ip.setter
-    def geo_ip(self, value):
-        raise AttributeError("'geo_ip' attribute is read only")
 
     @property
     def login(self) -> str:
@@ -288,10 +286,6 @@ class AbstractUser(AuthEntity):
     def full_name(self) -> str:
         return self.first_name + ' ' + self.last_name
 
-    @full_name.setter
-    def full_name(self, value):
-        raise AttributeError("'full_name' attribute is read only")
-
     @property
     def description(self) -> str:
         return self.get_field('description')
@@ -311,10 +305,6 @@ class AbstractUser(AuthEntity):
     @property
     def localtime(self):
         return _datetime.now(_timezone(self.timezone) if self.timezone else 'UTC')
-
-    @localtime.setter
-    def localtime(self, value):
-        raise AttributeError("'localtime' attribute is read only")
 
     @property
     def birth_date(self) -> _datetime:
@@ -660,3 +650,6 @@ class AbstractUser(AuthEntity):
             })
 
         return r
+
+    def __str__(self) -> str:
+        return self.login

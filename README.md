@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.4 (2018-04-08)
+
+New API function: `on_user_create()`.
+
+
 ### 2.3 (2018-04-08)
 
 - New properties and methods added to `AbstractRole`: `do_save()`,

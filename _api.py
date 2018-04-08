@@ -5,14 +5,14 @@ __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
 from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple, Optional as _Optional
-from collections import OrderedDict
+from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
 from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
     validation as _validation, logger as _logger, util as _util, threading as _threading
 from plugins import query as _query
 from . import _error, _model, _driver
 
-_authentication_drivers = OrderedDict()  # type: _Dict[str, _driver.Authentication]
+_authentication_drivers = _OrderedDict()  # type: _Dict[str, _driver.Authentication]
 _storage_driver = None  # type: _driver.Storage
 
 _permission_groups = []
@@ -507,6 +507,12 @@ def on_user_save(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('auth@user_save', handler, priority)
+
+
+def on_user_create(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_create', handler, priority)
 
 
 def on_user_pre_delete(handler, priority: int = 0):
