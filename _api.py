@@ -7,8 +7,8 @@ __license__ = 'MIT'
 from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple, Optional as _Optional
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, \
-    validation as _validation, logger as _logger, util as _util, threading as _threading
+from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, util as _util, \
+    validation as _validation, threading as _threading
 from plugins import query as _query
 from . import _error, _model, _driver
 
@@ -231,18 +231,13 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
 def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Authenticate user
     """
-    try:
-        # Get user from driver
-        user = get_auth_driver(auth_driver_name).sign_in(data)
+    # Get user from driver
+    user = get_auth_driver(auth_driver_name).sign_in(data)
 
-        if user.status != 'active':
-            raise _error.AuthenticationError("User account '{}' is not active".format(user.login))
+    if user.status != 'active':
+        raise _error.UserNotActive()
 
-        switch_user(user)
-
-    except _error.AuthenticationError as e:
-        _logger.warn(str(e))
-        raise e
+    switch_user(user)
 
     # Update statistics
     user.sign_in_count += 1

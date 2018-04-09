@@ -64,6 +64,11 @@ class UserNotFound(Error):
         return _lang.t('auth@user_not_found')
 
 
+class UserNotActive(Error):
+    def __str__(self) -> str:
+        return _lang.t('auth@user_not_active')
+
+
 class UserExists(Error):
     def __str__(self) -> str:
         return _lang.t('auth@user_exists')

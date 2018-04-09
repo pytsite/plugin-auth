@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.5 (2018-04-09)
+
+New exception added: `error.UserNotActive`.
+
+
 ### 2.4 (2018-04-08)
 
 New API function: `on_user_create()`.
