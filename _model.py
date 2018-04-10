@@ -344,6 +344,9 @@ class AbstractUser(AuthEntity):
 
     @status.setter
     def status(self, value: str):
+        if value != self.status and not self.is_new:
+            _events.fire('auth@user_status_change', user=self, status=value)
+
         self.set_field('status', value)
 
     @property

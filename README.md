@@ -4,6 +4,13 @@
 ## Changelog
 
 
+### 2.6 (2018-04-10)
+
+- New API functions: `on_user_status_change()`,
+  `is_user_status_change_notification_enabled()`.
+- Incorrect event name fixed.
+
+
 ### 2.5 (2018-04-09)
 
 New exception added: `error.UserNotActive`.

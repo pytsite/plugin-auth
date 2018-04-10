@@ -12,9 +12,10 @@ from ._api import get_current_user, get_user_statuses, get_user, create_user, ge
     get_storage_driver, count_users, count_roles, get_admin_user, find_roles, find_role, switch_user_to_system, \
     switch_user_to_anonymous, restore_user, generate_access_token, prolong_access_token, register_storage_driver, \
     get_auth_drivers, revoke_access_token, is_sign_up_enabled, sign_up, on_register_storage_driver, \
-    is_sign_up_confirmation_required, get_new_user_status, is_sign_up_admins_notification_enabled, get_admin_users, \
-    on_role_pre_save, on_role_save, on_role_pre_delete, on_role_delete, on_user_pre_save, on_user_save, \
-    on_user_create, on_user_pre_delete, on_user_delete
+    is_sign_up_confirmation_required, get_new_user_status, is_sign_up_admins_notification_enabled, \
+    is_user_status_change_notification_enabled, get_admin_users, on_role_pre_save, on_role_save, on_role_pre_delete, \
+    on_role_delete, on_user_pre_save, on_user_save, on_user_create, on_user_pre_delete, on_user_delete, \
+    on_user_status_change
 from ._model import AuthEntity, AbstractRole, AbstractUser
 
 

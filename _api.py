@@ -133,22 +133,19 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
     # Create user
     user = get_storage_driver().create_user(login, password)
+    user.status = get_new_user_status()
 
-    # Do some actions with non-anonymous users
+    # Generate confirmation hash
+    if is_sign_up_confirmation_required():
+        user.confirmation_hash = _util.random_str(64)
+
+    # Attach roles
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
-        # Automatic roles for new users
-        roles = []
-        for role_name in _reg.get('auth.new_user_roles', ['user']):
-            try:
-                roles.append(get_role(role_name))
-            except _error.RoleNotFound:
-                pass
+        user.roles = [get_role(r) for r in _reg.get('auth.new_user_roles', ['user'])]
 
-        user.roles = roles
+    user.save()
 
-        user.save()
-
-        _events.fire('auth@user.create', user=user)
+    _events.fire('auth@user_create', user=user)
 
     return user
 
@@ -449,6 +446,12 @@ def is_sign_up_admins_notification_enabled() -> bool:
     return _reg.get('auth.signup_admins_notification_enabled', True)
 
 
+def is_user_status_change_notification_enabled() -> bool:
+    """Check if the notification of the user status change si enabled
+    """
+    return _reg.get('auth.user_status_change_notification_enabled', True)
+
+
 def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     """Register a new user
     """
@@ -456,14 +459,6 @@ def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
         raise _error.SignupDisabled()
 
     user = get_auth_driver(auth_driver_name).sign_up(data)
-    user.status = get_new_user_status()
-
-    if is_sign_up_confirmation_required():
-        user.confirmation_hash = _util.random_str(64)
-
-    switch_user_to_system()
-    user.save()
-    restore_user()
 
     return user
 
@@ -492,6 +487,18 @@ def on_role_delete(handler, priority: int = 0):
     _events.listen('auth@role_delete', handler, priority)
 
 
+def on_user_create(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_create', handler, priority)
+
+
+def on_user_status_change(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@user_status_change', handler, priority)
+
+
 def on_user_pre_save(handler, priority: int = 0):
     """Shortcut
     """
@@ -502,12 +509,6 @@ def on_user_save(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('auth@user_save', handler, priority)
-
-
-def on_user_create(handler, priority: int = 0):
-    """Shortcut
-    """
-    _events.listen('auth@user_create', handler, priority)
 
 
 def on_user_pre_delete(handler, priority: int = 0):
