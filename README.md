@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.6.2 (2018-04-10)
+
+Incorrect field set logic fixed.
+
+
 ### 2.6.1 (2018-04-10)
 
 Typo fixed.

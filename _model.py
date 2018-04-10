@@ -344,9 +344,6 @@ class AbstractUser(AuthEntity):
 
     @status.setter
     def status(self, value: str):
-        if value != self.status and not self.is_new:
-            _events.fire('auth@user_status_change', user=self, status=value)
-
         self.set_field('status', value)
 
     @property
@@ -473,6 +470,12 @@ class AbstractUser(AuthEntity):
     @city.setter
     def city(self, value: str):
         self.set_field('city', value)
+
+    def set_field(self, field_name: str, value):
+        if field_name == 'status' and value != self.status and not self.is_new:
+            _events.fire('auth@user_status_change', user=self, status=value)
+
+        return self
 
     def add_role(self, role: AbstractRole):
         """
