@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.6.1 (2018-04-10)
+
+Typo fixed.
+
+
 ### 2.6 (2018-04-10)
 
 - New API functions: `on_user_status_change()`,

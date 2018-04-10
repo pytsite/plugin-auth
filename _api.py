@@ -142,8 +142,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
     # Attach roles
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         user.roles = [get_role(r) for r in _reg.get('auth.new_user_roles', ['user'])]
-
-    user.save()
+        user.save()
 
     _events.fire('auth@user_create', user=user)
 
