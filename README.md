@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.7 (2018-04-14)
+
+Now `has_pernission` always returns `True` for admin and dev users.
+
+
 ### 2.6.2 (2018-04-10)
 
 Incorrect field set logic fixed.

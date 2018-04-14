@@ -550,7 +550,7 @@ class AbstractUser(AuthEntity):
         """Checks if the user has a permission or one of the permissions
         """
         # System user has all permissions
-        if self.is_system:
+        if self.is_system or self.is_admin_or_dev:
             return True
 
         # Process list of permissions
