@@ -118,6 +118,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
     if not login:
         raise _error.UserCreateError(_lang.t('auth@login_str_rules'))
 
+    # Various checks
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
         try:
             # Check user existence
@@ -133,18 +134,24 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
     # Create user
     user = get_storage_driver().create_user(login, password)
-    user.status = get_new_user_status()
-
-    # Generate confirmation hash
-    if is_sign_up_confirmation_required():
-        user.confirmation_hash = _util.random_str(64)
 
     # Attach roles
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
+        # Set user's status
+        user.status = get_new_user_status()
+
+        # Generate confirmation hash
+        if is_sign_up_confirmation_required():
+            user.confirmation_hash = _util.random_str(64)
+
         user.roles = [get_role(r) for r in _reg.get('auth.new_user_roles', ['user'])]
         user.save()
 
-    _events.fire('auth@user_create', user=user)
+        _events.fire('auth@user_create', user=user)
+
+    else:
+        user.status = 'active'
+        user.roles = [get_role('anonymous')]
 
     return user
 

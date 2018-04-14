@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 2.7.1 (2018-04-14)
+
+Fixed anonyomus user construction issues.
+
+
 ### 2.7 (2018-04-14)
 
 Now `has_pernission` always returns `True` for admin and dev users.
