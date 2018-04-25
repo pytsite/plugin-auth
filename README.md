@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.0.1 (2018-04-25)
+
+Fixed arguments names in `plugman`'s event handlers.
+
+
 ### 3.0 (2018-04-25)
 
 - `cron`, `console` and `plugman` tasks now works in context of the

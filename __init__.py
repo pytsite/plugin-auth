@@ -36,9 +36,9 @@ def plugin_load():
     on_register_storage_driver(_eh.on_register_storage_driver)
     cron.on_start(switch_user_to_system)
     cron.on_stop(restore_user)
-    plugman.on_pre_install(lambda n, v: switch_user_to_system())
-    plugman.on_install(lambda n, v: restore_user())
-    plugman.on_install_error(lambda n, v, e: restore_user())
+    plugman.on_pre_install(lambda name, version: switch_user_to_system())
+    plugman.on_install(lambda name, version: restore_user())
+    plugman.on_install_error(lambda name, version, exception: restore_user())
 
 
 def plugin_load_console():
