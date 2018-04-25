@@ -14,12 +14,12 @@ login_str_rules: 'Invalid login'
 nickname_str_rules: 'Invalid nickname'
 email_cannot_be_empty: 'Email cannot be empty'
 passwd_console_command_description: 'Set user password'
-user_not_found: "User is not found"
-user_exists: "User already exist"
+user_not_found: 'User is not found'
+user_exists: 'User already exist'
 enter_new_password: 'New password for user :login'
 retype_password: 'Retype entered password'
 password_cannot_be_empty: 'Password cannot be empty'
-passwords_dont_match: 'Passwords does not match'
+passwords_dont_match: 'Passwords do not match'
 password_successfully_changed: 'Password of user :login successfully changed'
 login_required: 'Login cannot be empty'
 unfollow_confirmation: 'Do you really want to stop following this user?'
@@ -29,3 +29,6 @@ signup_is_disabled: 'Signup is disabled'
 user_modified: 'User has been modified: :login'
 role_used_by_user: "Role ':role' is used by user ':user'"
 user_not_active: 'User account is not active. Please wait until the account will be activated.'
+login_already_taken: "Login ':value' is already taken"
+email_already_taken: "Email ':value' is already taken"
+nickname_already_taken: "Nickname ':value' is already taken"

@@ -4,6 +4,18 @@
 ## Changelog
 
 
+### 3.0 (2018-04-25)
+
+- `cron`, `console` and `plugman` tasks now works in context of the
+  system user by default.
+- New `validation` module added.
+- New API function added: `get_new_user_roles()`.
+- New `AuthEntity`'s field added: `uid`.
+- `is_admin_or_dev()` removed.
+- `is_admin()` now returns `True` for `dev` role.
+- `AbstractUser.profile_is_public` property renamed to `is_public`.
+
+
 ### 2.7.1 (2018-04-14)
 
 Fixed anonyomus user construction issues.

@@ -144,7 +144,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         if is_sign_up_confirmation_required():
             user.confirmation_hash = _util.random_str(64)
 
-        user.roles = [get_role(r) for r in _reg.get('auth.new_user_roles', ['user'])]
+        user.roles = [get_role(r) for r in get_new_user_roles()]
         user.save()
 
         _events.fire('auth@user_create', user=user)
@@ -163,10 +163,13 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
     if access_token:
         return get_user(uid=get_access_token_info(access_token)['user_uid'])
 
+    # Retrieve user from storage driver
     user = get_storage_driver().get_user(login, nickname, uid)
+    if not user:
+        raise _error.UserNotFound()
 
-    c_user = get_current_user()
-    if user == c_user and user.status != 'active':
+    # Sign out non-active users
+    if user == get_current_user() and user.status != 'active':
         sign_out(user)
 
     return user
@@ -174,6 +177,8 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
 
 def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
                     skip: int = 0) -> _Iterator[_model.AbstractUser]:
+    """Get admin users
+    """
     if sort is None:
         sort = [('created', 1)]
 
@@ -186,7 +191,7 @@ def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = Tr
 
 def get_admin_user(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
                    skip: int = 0) -> _model.AbstractUser:
-    """Get first created user which has 'admin' role
+    """Get first admin user
     """
     try:
         return next(get_admin_users(sort, active_only, skip))
@@ -321,18 +326,20 @@ def sign_out(user: _model.AbstractUser):
     if user.is_anonymous:
         return
 
-    # All operation on current user perform on behalf of system user
-    switch_user_to_system()
+    try:
+        # All operation on current user perform on behalf of system user
+        switch_user_to_system()
 
-    # Ask drivers to perform necessary operations
-    for driver in _authentication_drivers.values():
-        driver.sign_out(user)
+        # Ask drivers to perform necessary operations
+        for driver in _authentication_drivers.values():
+            driver.sign_out(user)
 
-    # Notify listeners
-    _events.fire('auth@sign_out', user=user)
+        # Notify listeners
+        _events.fire('auth@sign_out', user=user)
 
-    # Set anonymous user as current
-    switch_user_to_anonymous()
+    finally:
+        # Set anonymous user as current
+        switch_user_to_anonymous()
 
 
 def get_current_user() -> _model.AbstractUser:
@@ -390,6 +397,12 @@ def get_new_user_status() -> str:
     """Get status of newly created user
     """
     return _reg.get('auth.new_user_status', 'waiting')
+
+
+def get_new_user_roles() -> list:
+    """Get default roles of newly created user
+    """
+    return _reg.get('auth.new_user_roles', ['user'])
 
 
 def find_users(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,

@@ -20,11 +20,10 @@ class AuthEntity(_ABC):
     """
 
     @property
-    @_abstractmethod
     def uid(self) -> str:
         """Get UID of the entity
         """
-        raise NotImplementedError()
+        return self.get_field('uid')
 
     @property
     @_abstractmethod
@@ -197,19 +196,13 @@ class AbstractUser(AuthEntity):
     def is_admin(self) -> bool:
         """Check if the user has the 'admin' role.
         """
-        return self.has_role('admin')
+        return self.has_role(['admin', 'dev'])
 
     @property
     def is_dev(self) -> bool:
         """Check if the user has the 'dev' role.
         """
         return self.has_role('dev')
-
-    @property
-    def is_admin_or_dev(self) -> bool:
-        """Check if the user has the 'admin' or 'dev' role.
-        """
-        return self.has_role(['admin', 'dev'])
 
     @property
     def is_online(self) -> bool:
@@ -347,6 +340,10 @@ class AbstractUser(AuthEntity):
         self.set_field('status', value)
 
     @property
+    def is_active(self) -> bool:
+        return self.status == 'active'
+
+    @property
     def roles(self) -> _Tuple[AbstractRole]:
         if self.is_anonymous:
             from . import _api
@@ -407,12 +404,12 @@ class AbstractUser(AuthEntity):
         self.set_field('urls', value)
 
     @property
-    def profile_is_public(self) -> bool:
-        return self.get_field('profile_is_public')
+    def is_public(self) -> bool:
+        return self.get_field('is_public')
 
-    @profile_is_public.setter
-    def profile_is_public(self, value: bool):
-        self.set_field('profile_is_public', value)
+    @is_public.setter
+    def is_public(self, value: bool):
+        self.set_field('is_public', value)
 
     @property
     def follows(self):
@@ -550,7 +547,7 @@ class AbstractUser(AuthEntity):
         """Checks if the user has a permission or one of the permissions
         """
         # System user has all permissions
-        if self.is_system or self.is_admin_or_dev:
+        if self.is_system or self.is_admin:
             return True
 
         # Process list of permissions
@@ -619,7 +616,7 @@ class AbstractUser(AuthEntity):
             'uid': self.uid,
         }
 
-        if self.profile_is_public or current_user == self or current_user.is_admin_or_dev:
+        if self.is_public or current_user == self or current_user.is_admin:
             r.update({
                 'nickname': self.nickname,
                 'picture': {
@@ -643,7 +640,7 @@ class AbstractUser(AuthEntity):
                 'is_followed': self.is_followed(current_user),
             })
 
-        if current_user == self or current_user.is_admin_or_dev:
+        if current_user == self or current_user.is_admin:
             r.update({
                 'created': _util.w3c_datetime_str(self.created),
                 'login': self.login,
@@ -652,7 +649,7 @@ class AbstractUser(AuthEntity):
                 'last_activity': _util.w3c_datetime_str(self.last_activity),
                 'sign_in_count': self.sign_in_count,
                 'status': self.status,
-                'profile_is_public': self.profile_is_public,
+                'is_public': self.is_public,
             })
 
         return r

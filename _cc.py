@@ -38,8 +38,6 @@ class UserAdd(_console.Command):
             raise _console.error.MissingArgument('auth@login_required', 0)
 
         try:
-            _api.switch_user_to_system()
-
             user = _api.create_user(login)
 
             roles = self.opt('roles')
@@ -62,16 +60,11 @@ class UserAdd(_console.Command):
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
 
-        finally:
-            _api.restore_user()
-
         # Set password of the user
         try:
             _console.run_command('auth:passwd', arguments=[login])
         except _console.error.Error as e:
-            _api.switch_user_to_system()
             user.delete()
-            _api.restore_user()
             raise e
 
 
@@ -104,8 +97,6 @@ class UserMod(_console.Command):
             raise _console.error.MissingArgument('auth@login_required', 0)
 
         try:
-            _api.switch_user_to_system()
-
             user = _api.get_user(login)
 
             roles = self.opt('roles')
@@ -128,9 +119,6 @@ class UserMod(_console.Command):
 
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
-
-        finally:
-            _api.restore_user()
 
 
 class Passwd(_console.Command):
@@ -174,7 +162,6 @@ class Passwd(_console.Command):
                 break
 
         try:
-            _api.switch_user_to_system()
             user.password = pass_2
             user.save()
             _console.print_success(_lang.t('auth@password_successfully_changed', {'login': user.login}))
