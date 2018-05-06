@@ -12,6 +12,10 @@ from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cac
 from plugins import query as _query
 from . import _error, _model, _driver
 
+USER_STATUS_ACTIVE = 'active'
+USER_STATUS_WAITING = 'waiting'
+USER_STATUS_DISABLED = 'disabled'
+
 _authentication_drivers = _OrderedDict()  # type: _Dict[str, _driver.Authentication]
 _storage_driver = None  # type: _driver.Storage
 
@@ -150,7 +154,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         _events.fire('auth@user_create', user=user)
 
     else:
-        user.status = 'active'
+        user.status = USER_STATUS_ACTIVE
         user.roles = [get_role('anonymous')]
 
     return user
@@ -169,7 +173,7 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
         raise _error.UserNotFound()
 
     # Sign out non-active users
-    if user == get_current_user() and user.status != 'active':
+    if user == get_current_user() and user.status != USER_STATUS_ACTIVE:
         sign_out(user)
 
     return user
@@ -242,7 +246,7 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     # Get user from driver
     user = get_auth_driver(auth_driver_name).sign_in(data)
 
-    if user.status != 'active':
+    if user.status != USER_STATUS_ACTIVE:
         raise _error.UserNotActive()
 
     switch_user(user)

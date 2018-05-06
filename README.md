@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.1 (2018-05-06)
+
+New public API constants `USER_STATUS_*` added.
+
+
 ### 3.0.1 (2018-04-25)
 
 Fixed arguments names in `plugman`'s event handlers.
