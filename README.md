@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.2 (2018-05-07)
+
+New `status` option in console commands `auth:useradd`, `auth:usermod`.
+
+
 ### 3.1 (2018-05-06)
 
 New public API constants `USER_STATUS_*` added.

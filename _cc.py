@@ -17,6 +17,7 @@ class UserAdd(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Str('roles'))
+        self.define_option(_console.option.Str('status'))
 
     @property
     def name(self) -> str:
@@ -55,6 +56,10 @@ class UserAdd(_console.Command):
                         user.delete()
                         raise e
 
+            status = self.opt('status')
+            if status:
+                user.status = status
+
             _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
         except _error.Error as e:
@@ -76,6 +81,7 @@ class UserMod(_console.Command):
         super().__init__()
 
         self.define_option(_console.option.Str('roles'))
+        self.define_option(_console.option.Str('status'))
 
     @property
     def name(self) -> str:
@@ -100,6 +106,9 @@ class UserMod(_console.Command):
             user = _api.get_user(login)
 
             roles = self.opt('roles')
+            status = self.opt('status')
+
+            # Set roles
             if roles:
                 # Remove all attached roles
                 for role in user.roles:
@@ -108,14 +117,17 @@ class UserMod(_console.Command):
                 # Add new roles
                 for role_name in roles.split(',') if roles else []:
                     try:
-                        user.add_role(_api.get_role(role_name)).save()
+                        user.add_role(_api.get_role(role_name))
                     except _error.RoleNotFound as e:
                         _console.print_warning(e)
 
-            else:
-                raise _console.error.MissingOption(list(self._opts.keys()))
+            # Set status
+            if status:
+                user.status = status
 
-            _console.print_success(_lang.t('auth@user_modified', {'login': login}))
+            if user.is_modified:
+                user.save()
+                _console.print_success(_lang.t('auth@user_modified', {'login': login}))
 
         except _error.Error as e:
             raise _console.error.CommandExecutionError(e)
