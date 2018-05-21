@@ -29,6 +29,7 @@ signup_is_disabled: 'Signup is disabled'
 user_modified: 'User has been modified: :login'
 role_used_by_user: "Role ':role' is used by user ':user'"
 user_not_active: 'User account is not active. Please wait until the account will be activated.'
-login_already_taken: "Login ':value' is already taken"
-email_already_taken: "Email ':value' is already taken"
-nickname_already_taken: "Nickname ':value' is already taken"
+role_name_already_taken: "Role name ':value' is already taken"
+user_login_already_taken: "Login ':value' is already taken"
+user_email_already_taken: "Email ':value' is already taken"
+user_nickname_already_taken: "Nickname ':value' is already taken"

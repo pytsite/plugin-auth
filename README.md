@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.3 (2018-05-21)
+
+- `validation.UserFieldUnique` moved to `AuthEntityFieldUnique`.
+- Translations typos fixed.
+
+
 ### 3.2 (2018-05-07)
 
 New `status` option in console commands `auth:useradd`, `auth:usermod`.

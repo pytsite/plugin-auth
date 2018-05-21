@@ -28,9 +28,9 @@ _current_user = {}  # Current users, per thread
 _previous_user = {}  # Previous users, per thread
 _access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
 
-user_login_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
+user_login_rule = _validation.rule.Regex(msg_id='auth@login_str_rules',
                                          pattern='^[A-Za-z0-9][A-Za-z0-9.\-_@]{1,64}$')
-user_nickname_rule = _validation.rule.Regex(msg_id='auth@login_str_rules',
+user_nickname_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
                                             pattern='^[A-Za-z0-9][A-Za-z0-9.\-_]{0,31}$')
 
 

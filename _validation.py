@@ -6,12 +6,16 @@ __license__ = 'MIT'
 
 from pytsite import validation as _validation
 from plugins import query as _query
-from . import _api, _error
+from . import _api
 
 
-class UserFieldUnique(_validation.Rule):
+class AuthEntityFieldUnique(_validation.Rule):
     def __init__(self, value=None, msg_id: str = None, msg_args: dict = None, **kwargs):
         super().__init__(value, msg_id, msg_args)
+
+        self._e_type = kwargs.get('e_type')
+        if not self._e_type:
+            raise RuntimeError("'e_type' argument is required")
 
         self._field_name = kwargs.get('field_name')
         if not self._field_name:
@@ -27,5 +31,12 @@ class UserFieldUnique(_validation.Rule):
 
     def _do_validate(self):
         self._q.add(_query.Eq(self._field_name, self.value))
-        if _api.find_user(self._q):
-            raise _validation.RuleError('auth@{}_already_taken'.format(self._field_name), {'value': self.value})
+
+        if self._e_type == 'role':
+            if _api.find_role(self._q):
+                raise _validation.RuleError('auth@{}_{}_already_taken'.
+                                            format(self._e_type, self._field_name), {'value': self.value})
+        elif self._e_type == 'user':
+            if _api.find_user(self._q):
+                raise _validation.RuleError('auth@{}_{}_already_taken'.
+                                            format(self._e_type, self._field_name), {'value': self.value})
