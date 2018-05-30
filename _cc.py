@@ -59,6 +59,7 @@ class UserAdd(_console.Command):
             status = self.opt('status')
             if status:
                 user.status = status
+                user.save()
 
             _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
