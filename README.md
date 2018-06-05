@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.3.2 (2018-06-05)
+
+`get_admin_users()` fixed.
+
+
 ### 3.3.1 (2018-05-30)
 
 Invalid argument processing fixed in `auth:useradd` console command.

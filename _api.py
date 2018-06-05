@@ -179,8 +179,7 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
     return user
 
 
-def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
-                    skip: int = 0) -> _Iterator[_model.AbstractUser]:
+def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = True) -> _Iterator[_model.AbstractUser]:
     """Get admin users
     """
     if sort is None:
@@ -190,15 +189,14 @@ def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = Tr
     if active_only:
         q.add(_query.Eq('status', 'active'))
 
-    return find_users(q, sort, limit=1, skip=skip)
+    return find_users(q, sort)
 
 
-def get_admin_user(sort: _List[_Tuple[str, int]] = None, active_only: bool = True,
-                   skip: int = 0) -> _model.AbstractUser:
+def get_admin_user(sort: _List[_Tuple[str, int]] = None, active_only: bool = True) -> _model.AbstractUser:
     """Get first admin user
     """
     try:
-        return next(get_admin_users(sort, active_only, skip))
+        return next(get_admin_users(sort, active_only))
     except StopIteration:
         raise _error.UserNotFound()
 
