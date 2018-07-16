@@ -7,7 +7,7 @@ __license__ = 'MIT'
 from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple, Optional as _Optional
 from collections import OrderedDict as _OrderedDict
 from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import reg as _reg, lang as _lang, router as _router, cache as _cache, events as _events, util as _util, \
+from pytsite import reg as _reg, lang as _lang, cache as _cache, events as _events, util as _util, \
     validation as _validation, threading as _threading
 from plugins import query as _query
 from . import _error, _model, _driver
@@ -23,7 +23,8 @@ _permission_groups = []
 _permissions = []
 _anonymous_user = None
 _system_user = None
-_access_tokens = _cache.create_pool('auth.token_user')  # user.uid: token
+_access_tokens = _cache.create_pool('auth.access_tokens')  # token: token_info
+_user_access_tokens = _cache.create_pool('auth.user_access_tokens')  # user.uid: tokens
 _current_user = {}  # Current users, per thread
 _previous_user = {}  # Previous users, per thread
 _access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
@@ -238,7 +239,7 @@ def get_role(name: str = None, uid: str = None) -> _model.AbstractRole:
     return get_storage_driver().get_role(name, uid)
 
 
-def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
+def sign_in(auth_driver_name: str = None, data: dict = None) -> _model.AbstractUser:
     """Authenticate user
     """
     # Get user from driver
@@ -253,22 +254,6 @@ def sign_in(auth_driver_name: str, data: dict) -> _model.AbstractUser:
     user.sign_in_count += 1
     user.last_sign_in = _datetime.now()
     user.save()
-
-    if _router.request():
-        # Set session marker
-        _router.session()['auth.login'] = user.login
-
-        # Update IP address and geo data
-        user.last_ip = _router.request().remote_addr
-        geo_ip = user.geo_ip
-        if not user.timezone:
-            user.timezone = geo_ip.timezone
-        if not user.country:
-            user.country = geo_ip.country
-        if not user.city:
-            user.city = geo_ip.city
-
-        user.save()
 
     # Login event
     _events.fire('auth@sign_in', user=user)
@@ -300,9 +285,26 @@ def generate_access_token(user: _model.AbstractUser) -> str:
                 'created': now,
                 'expires': now + _timedelta(seconds=_access_token_ttl),
             }
+
             _access_tokens.put(token, t_info, _access_token_ttl)
 
+            try:
+                user_tokens = _user_access_tokens.get(user.uid)  # type: list
+                user_tokens.append(token)
+                _user_access_tokens.put(user.uid, user_tokens)
+            except _cache.error.KeyNotExist:
+                _user_access_tokens.put(user.uid, [token])
+
             return token
+
+
+def get_user_access_tokens(user: _model.AbstractUser) -> _List[str]:
+    """Get user's access tokens
+    """
+    try:
+        return _user_access_tokens.get(user.uid)
+    except _cache.error.KeyNotExist:
+        return []
 
 
 def revoke_access_token(token: str):
@@ -311,13 +313,27 @@ def revoke_access_token(token: str):
     if not token or not _access_tokens.has(token):
         raise _error.InvalidAccessToken('Invalid access token')
 
+    user_uid = get_access_token_info(token)['user_uid']
+    user_tokens = _user_access_tokens.get(user_uid)  # type: _List[str]
+    user_tokens.remove(token)
+    _user_access_tokens.put(user_uid, user_tokens)
+
     _access_tokens.rm(token)
+
+
+def revoke_user_access_tokens(user: _model.AbstractUser):
+    """Revoke all user access tokens
+    """
+    # Revoke user access tokens
+    for token in _user_access_tokens.rm(user.uid):
+        revoke_access_token(token)
 
 
 def prolong_access_token(token: str):
     """Prolong an access token
     """
     token_info = get_access_token_info(token)
+    token_info['expires'] = _datetime.now() + _timedelta(seconds=_access_token_ttl),
     _access_tokens.put(token, token_info, _access_token_ttl)
 
 
@@ -473,7 +489,7 @@ def is_user_status_change_notification_enabled() -> bool:
     return _reg.get('auth.user_status_change_notification_enabled', True)
 
 
-def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
+def sign_up(auth_driver_name: str = None, data: dict = None) -> _model.AbstractUser:
     """Register a new user
     """
     if not is_sign_up_enabled():
@@ -481,7 +497,27 @@ def sign_up(auth_driver_name: str, data: dict) -> _model.AbstractUser:
 
     user = get_auth_driver(auth_driver_name).sign_up(data)
 
+    _events.fire('auth@sign_up', user=user)
+
     return user
+
+
+def on_sign_up(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@sign_up', handler, priority)
+
+
+def on_sign_in(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@sign_in', handler, priority)
+
+
+def on_sign_out(handler, priority: int = 0):
+    """Shortcut
+    """
+    _events.listen('auth@sign_out', handler, priority)
 
 
 def on_role_pre_save(handler, priority: int = 0):
