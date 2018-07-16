@@ -4,7 +4,7 @@
 ## Changelog
 
 
-### 3.4 (2018-06-16)
+### 3.4 (2018-07-16)
 
 - New API functions added: `get_user_access_tokens()`, `on_sign_in()`,
   `on_sign_out()`, `on_sign_up()`.
