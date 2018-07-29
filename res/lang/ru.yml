@@ -30,6 +30,5 @@ user_modified: 'Пользователь изменён: :login'
 role_used_by_user: "Роль ':role' используется учётной записью ':user'"
 user_not_active: 'Учётная запись не активна. Пожалуйста, дождитесь активации учётной записи.'
 role_name_already_taken: "Имя роли ':value' уже занято"
-user_login_already_taken: "Логин ':value' уже занят"
-user_email_already_taken: "Email ':value' уже занят"
+user_login_already_taken: "Email ':value' уже занят"
 user_nickname_already_taken: "Никнейм ':value' уже занят"

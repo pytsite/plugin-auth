@@ -13,6 +13,20 @@ from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _fil
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 SYSTEM_USER_LOGIN = 'system@system.system'
+LOGIN_MAX_LENGTH = 50
+NICKNAME_MAX_LENGTH = 50
+FIRST_NAME_MAX_LENGTH = 50
+MIDDLE_NAME_MAX_LENGTH = 50
+LAST_NAME_MAX_LENGTH = 50
+COUNTRY_MAX_LENGTH = 50
+POSTAL_CODE_MAX_LENGTH = 10
+REGION_MAX_LENGTH = 50
+CITY_MAX_LENGTH = 50
+STREET_MAX_LENGTH = 100
+HOUSE_NUMBER_MAX_LENGTH = 10
+APT_NUMBER_MAX_LENGTH = 10
+PHONE_MAX_LENGTH=20
+DESCRIPTION_MAX_LENGTH = 4096
 
 
 class AuthEntity(_ABC):
@@ -224,14 +238,6 @@ class AbstractUser(AuthEntity):
         self.set_field('login', value)
 
     @property
-    def email(self) -> str:
-        return self.get_field('email')
-
-    @email.setter
-    def email(self, value: str):
-        self.set_field('email', value)
-
-    @property
     def password(self) -> str:
         return self.get_field('password')
 
@@ -268,6 +274,14 @@ class AbstractUser(AuthEntity):
         self.set_field('first_name', value)
 
     @property
+    def middle_name(self) -> str:
+        return self.get_field('middle_name')
+
+    @middle_name.setter
+    def middle_name(self, value: str):
+        self.set_field('middle_name', value)
+
+    @property
     def last_name(self) -> str:
         return self.get_field('last_name')
 
@@ -277,7 +291,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def full_name(self) -> str:
-        return self.first_name + ' ' + self.last_name
+        return '{} {} {}'.format(self.first_name, self.middle_name, self.last_name).replace('  ', '')
 
     @property
     def description(self) -> str:
@@ -396,6 +410,14 @@ class AbstractUser(AuthEntity):
         self.set_field('picture', value)
 
     @property
+    def cover_picture(self) -> _file.model.AbstractImage:
+        return self.get_field('cover_picture')
+
+    @cover_picture.setter
+    def cover_picture(self, value: _file.model.AbstractImage):
+        self.set_field('cover_picture', value)
+
+    @property
     def urls(self) -> tuple:
         return self.get_field('urls')
 
@@ -461,12 +483,52 @@ class AbstractUser(AuthEntity):
         self.set_field('country', value)
 
     @property
+    def postal_code(self) -> str:
+        return self.get_field('postal_code')
+
+    @postal_code.setter
+    def postal_code(self, value: str):
+        self.set_field('postal_code', value)
+
+    @property
+    def region(self) -> str:
+        return self.get_field('region')
+
+    @region.setter
+    def region(self, value: str):
+        self.set_field('region', value)
+
+    @property
     def city(self) -> str:
         return self.get_field('city')
 
     @city.setter
     def city(self, value: str):
         self.set_field('city', value)
+
+    @property
+    def street(self) -> str:
+        return self.get_field('street')
+
+    @street.setter
+    def street(self, value: str):
+        self.set_field('street', value)
+
+    @property
+    def house_number(self) -> str:
+        return self.get_field('house_number')
+
+    @house_number.setter
+    def house_number(self, value: str):
+        self.set_field('house_number', value)
+
+    @property
+    def apt_number(self) -> str:
+        return self.get_field('apt_number')
+
+    @apt_number.setter
+    def apt_number(self, value: str):
+        self.set_field('apt_number', value)
 
     def set_field(self, field_name: str, value):
         if field_name == 'status' and value != self.status and not self.is_new:
@@ -626,7 +688,15 @@ class AbstractUser(AuthEntity):
                     'length': self.picture.length,
                     'mime': self.picture.mime,
                 },
+                'cover_picture': {
+                    'url': self.cover_picture.get_url(),
+                    'width': self.cover_picture.width,
+                    'height': self.cover_picture.height,
+                    'length': self.cover_picture.length,
+                    'mime': self.cover_picture.mime,
+                },
                 'first_name': self.first_name,
+                'middle_name': self.middle_name,
                 'last_name': self.last_name,
                 'full_name': self.full_name,
                 'timezone': self.timezone,
@@ -644,7 +714,6 @@ class AbstractUser(AuthEntity):
             r.update({
                 'created': _util.w3c_datetime_str(self.created),
                 'login': self.login,
-                'email': self.email,
                 'last_sign_in': _util.w3c_datetime_str(self.last_sign_in),
                 'last_activity': _util.w3c_datetime_str(self.last_activity),
                 'sign_in_count': self.sign_in_count,

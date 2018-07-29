@@ -4,6 +4,15 @@
 ## Changelog
 
 
+### 3.5 (2018-07-29)
+
+- New fields added to `model.AbstractUser`: `middle_name`,
+  `cover_picture`, `postal_code`, `region`, `street`, `house_number`,
+  `apt_number`.
+- `*_MAX_LENGTH` constants added.
+- Fields `email` removed from `model.AbstractUser`
+
+
 ### 3.4 (2018-07-16)
 
 - New API functions added: `get_user_access_tokens()`, `on_sign_in()`,
