@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.5.1 (2018-07-29)
+
+Return value of `model.AbstractUser.full_name` fixed.
+
+
 ### 3.5 (2018-07-29)
 
 - New fields added to `model.AbstractUser`: `middle_name`,

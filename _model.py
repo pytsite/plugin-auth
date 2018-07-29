@@ -291,7 +291,7 @@ class AbstractUser(AuthEntity):
 
     @property
     def full_name(self) -> str:
-        return '{} {} {}'.format(self.first_name, self.middle_name, self.last_name).replace('  ', '')
+        return '{} {} {}'.format(self.first_name, self.middle_name, self.last_name).replace('  ', ' ')
 
     @property
     def description(self) -> str:
