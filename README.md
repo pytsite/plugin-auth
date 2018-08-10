@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.6 (2018-08-10)
+
+- New getter `AbstractUser.first_last_name` added.
+- New field `position` added to `AbstractUser`.
+
+
 ### 3.5.1 (2018-07-29)
 
 Return value of `model.AbstractUser.full_name` fixed.

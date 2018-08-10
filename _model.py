@@ -1,6 +1,6 @@
 """PytSite Auth Plugin Data Models
 """
-__author__ = 'Alexander Shepetko'
+__author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
@@ -18,6 +18,7 @@ NICKNAME_MAX_LENGTH = 50
 FIRST_NAME_MAX_LENGTH = 50
 MIDDLE_NAME_MAX_LENGTH = 50
 LAST_NAME_MAX_LENGTH = 50
+USER_POSITION_MAX_LENGTH = 50
 COUNTRY_MAX_LENGTH = 50
 POSTAL_CODE_MAX_LENGTH = 10
 REGION_MAX_LENGTH = 50
@@ -25,8 +26,8 @@ CITY_MAX_LENGTH = 50
 STREET_MAX_LENGTH = 100
 HOUSE_NUMBER_MAX_LENGTH = 10
 APT_NUMBER_MAX_LENGTH = 10
-PHONE_MAX_LENGTH=20
-DESCRIPTION_MAX_LENGTH = 4096
+PHONE_MAX_LENGTH = 20
+USER_DESCRIPTION_MAX_LENGTH = 4096
 
 
 class AuthEntity(_ABC):
@@ -292,6 +293,18 @@ class AbstractUser(AuthEntity):
     @property
     def full_name(self) -> str:
         return '{} {} {}'.format(self.first_name, self.middle_name, self.last_name).replace('  ', ' ')
+
+    @property
+    def first_last_name(self) -> str:
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    @property
+    def position(self) -> str:
+        return self.get_field('position')
+
+    @position.setter
+    def position(self, value: str):
+        self.set_field('position', value)
 
     @property
     def description(self) -> str:
