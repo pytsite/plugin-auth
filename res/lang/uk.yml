@@ -29,6 +29,7 @@ signup_is_disabled: 'Реєстрацію нових користувачів в
 user_modified: 'Користувача змінено: :login'
 role_used_by_user: "Роль ':role' використовується обліковим записом ':user'"
 user_not_active: 'Обліковий запис не активний. Будь ласка, дочекайтеся активації облікового запису.'
+user_not_confirmed: 'Обліковий запис не підтверджено. Будь ласка, перевірте вашу поштову скриньку і підтвердіть реєстрацію.'
 role_name_already_taken: "Ім'я ролі ':value' вже зайняте"
 user_login_already_taken: "Email ':value' вже зайнятий"
 user_nickname_already_taken: "Нікнейм ':value' вже зайнятий"

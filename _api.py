@@ -248,6 +248,9 @@ def sign_in(auth_driver_name: str = None, data: dict = None) -> _model.AbstractU
     if user.status != USER_STATUS_ACTIVE:
         raise _error.UserNotActive()
 
+    if is_sign_up_confirmation_required() and not user.is_confirmed:
+        raise _error.UserNotConfirmed()
+
     switch_user(user)
 
     # Update statistics

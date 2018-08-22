@@ -28,7 +28,8 @@ usermod_console_command_description: 'Modify a user'
 signup_is_disabled: 'Signup is disabled'
 user_modified: 'User has been modified: :login'
 role_used_by_user: "Role ':role' is used by user ':user'"
-user_not_active: 'User account is not active. Please wait until the account will be activated.'
+user_not_active: 'User account is not active. Please wait until your account will be activated.'
+user_not_confirmed: 'User account is not confirmed. Please check your email and confirm your account.'
 role_name_already_taken: "Role name ':value' is already taken"
 user_login_already_taken: "Email ':value' is already taken"
 user_nickname_already_taken: "Nickname ':value' is already taken"
