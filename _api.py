@@ -147,7 +147,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
 
         # Generate confirmation hash
         if is_sign_up_confirmation_required():
-            user.confirmation_hash = _util.random_str(64)
+            user.is_confirmed = False
 
         user.roles = [get_role(r) for r in get_new_user_roles()]
         user.save()
@@ -248,7 +248,7 @@ def sign_in(auth_driver_name: str = None, data: dict = None) -> _model.AbstractU
     if user.status != USER_STATUS_ACTIVE:
         raise _error.UserNotActive()
 
-    if is_sign_up_confirmation_required() and not user.is_confirmed:
+    if is_sign_up_confirmation_required() and not (user.is_confirmed or user.is_admin):
         raise _error.UserNotConfirmed()
 
     switch_user(user)

@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.8 (2018-08-23)
+
+- `AbstractUser.is_confirmed` setter added.
+- Account's confirmation status for admins disabled.
+
+
 ### 3.7 (2018-08-22)
 
 - Checking for user confirmation status added.

@@ -256,7 +256,11 @@ class AbstractUser(AuthEntity):
 
     @property
     def is_confirmed(self) -> bool:
-        return not self.confirmation_hash
+        return self.get_field('is_confirmed')
+
+    @is_confirmed.setter
+    def is_confirmed(self, value: bool):
+        self.set_field('is_confirmed', value)
 
     @property
     def nickname(self) -> str:
