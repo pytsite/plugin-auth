@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.8.1 (2018-09-14)
+
+Unexpected exception during plugman's events processing fixed.
+
+
 ### 3.8 (2018-08-23)
 
 - `AbstractUser.is_confirmed` setter added.

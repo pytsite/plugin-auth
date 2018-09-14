@@ -625,8 +625,8 @@ class AbstractUser(AuthEntity):
     def has_permission(self, name: _Union[str, list, tuple]) -> bool:
         """Checks if the user has a permission or one of the permissions
         """
-        # System user has all permissions
-        if self.is_system or self.is_admin:
+        # Admins have unrestricted permissions
+        if self.is_admin:
             return True
 
         # Process list of permissions

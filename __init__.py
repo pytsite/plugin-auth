@@ -27,7 +27,7 @@ from ._model import SYSTEM_USER_LOGIN, ANONYMOUS_USER_LOGIN, LOGIN_MAX_LENGTH, N
 def plugin_load():
     """Init wrapper
     """
-    from pytsite import lang, plugman, cron
+    from pytsite import lang, cron
     from plugins import permissions
     from . import _eh
 
@@ -41,9 +41,6 @@ def plugin_load():
     on_register_storage_driver(_eh.on_register_storage_driver)
     cron.on_start(switch_user_to_system)
     cron.on_stop(restore_user)
-    plugman.on_pre_install(lambda name, version: switch_user_to_system())
-    plugman.on_install(lambda name, version: restore_user())
-    plugman.on_install_error(lambda name, version, exception: restore_user())
 
 
 def plugin_load_console():
