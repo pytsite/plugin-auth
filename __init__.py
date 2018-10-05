@@ -27,12 +27,9 @@ from ._model import SYSTEM_USER_LOGIN, ANONYMOUS_USER_LOGIN, LOGIN_MAX_LENGTH, N
 def plugin_load():
     """Init wrapper
     """
-    from pytsite import lang, cron
+    from pytsite import cron
     from plugins import permissions
     from . import _eh
-
-    # Resources
-    lang.register_package(__name__)
 
     # Module permission group
     permissions.define_group('security', 'auth@security')

@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.9 (2018-10-05)
+
+Support of PytSite-8.x.
+
+
 ### 3.8.1 (2018-09-14)
 
 Unexpected exception during plugman's events processing fixed.
