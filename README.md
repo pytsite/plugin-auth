@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.9.1 (2018-10-06)
+
+`plugin.json` fixed.
+
+
 ### 3.9 (2018-10-05)
 
 Support of PytSite-8.x.

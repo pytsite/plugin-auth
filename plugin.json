@@ -1,6 +1,6 @@
 {
   "name": "auth",
-  "version": "3.9",
+  "version": "3.9.1",
   "description": {
     "en": "Authentication and Authorization",
     "ru": "Аутентификация и авторизация",
@@ -14,11 +14,11 @@
   },
   "requires": {
     "pytsite": "8.x",
-    "plugins": [
-      "permissions 1.x",
-      "file 1.x",
-      "geo_ip 2.x",
-      "query 1.x"
-    ]
+    "plugins": {
+      "permissions": "1.x",
+      "file": "1.x",
+      "geo_ip": "2.x",
+      "query": "1.x"
+    }
   }
 }
