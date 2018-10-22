@@ -699,22 +699,19 @@ class AbstractUser(AuthEntity):
             r.update({
                 'nickname': self.nickname,
                 'picture': {
-                    'url': self.picture.get_url(),
+                    'url': self.picture.get_url(
+                        width=kwargs.get('picture_width', 250),
+                        height=kwargs.get('picture_height', 250),
+                    ),
                     'width': self.picture.width,
                     'height': self.picture.height,
                     'length': self.picture.length,
                     'mime': self.picture.mime,
                 },
-                'cover_picture': {
-                    'url': self.cover_picture.get_url(),
-                    'width': self.cover_picture.width,
-                    'height': self.cover_picture.height,
-                    'length': self.cover_picture.length,
-                    'mime': self.cover_picture.mime,
-                },
                 'first_name': self.first_name,
                 'middle_name': self.middle_name,
                 'last_name': self.last_name,
+                'first_last_name': self.first_last_name,
                 'full_name': self.full_name,
                 'timezone': self.timezone,
                 'birth_date': _util.w3c_datetime_str(self.birth_date),
@@ -726,6 +723,17 @@ class AbstractUser(AuthEntity):
                 'is_follows': self.is_follows(current_user),
                 'is_followed': self.is_followed(current_user),
             })
+
+            if self.cover_picture:
+                r.update({
+                    'cover_picture': {
+                        'url': self.cover_picture.get_url(),
+                        'width': self.cover_picture.width,
+                        'height': self.cover_picture.height,
+                        'length': self.cover_picture.length,
+                        'mime': self.cover_picture.mime,
+                    },
+                })
 
         if current_user == self or current_user.is_admin:
             r.update({

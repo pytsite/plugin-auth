@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.10 (2018-10-22)
+
+Support of `picture_width` and `picture_height` kwargs in
+`model.AbstractUser.as_jsonable()`.
+
+
 ### 3.9.1 (2018-10-06)
 
 `plugin.json` fixed.
