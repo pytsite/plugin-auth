@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.11 (2018-10-30)
+
+`AuthEntity.__hash__()` method added.
+
+
 ### 3.10 (2018-10-22)
 
 Support of `picture_width` and `picture_height` kwargs in

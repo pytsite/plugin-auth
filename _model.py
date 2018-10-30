@@ -86,6 +86,9 @@ class AuthEntity(_ABC):
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) and other.uid == self.uid
 
+    def __hash__(self) -> int:
+        return hash(self.uid)
+
     def __str__(self) -> str:
         return self.uid
 
