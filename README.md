@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.11.1 (2018-10-31)
+
+`AbstractUser.as_jsonable().picture.url` default width and height kwargs
+values increased to 300.
+
+
 ### 3.11 (2018-10-30)
 
 `AuthEntity.__hash__()` method added.

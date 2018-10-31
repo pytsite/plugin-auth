@@ -703,8 +703,8 @@ class AbstractUser(AuthEntity):
                 'nickname': self.nickname,
                 'picture': {
                     'url': self.picture.get_url(
-                        width=kwargs.get('picture_width', 250),
-                        height=kwargs.get('picture_height', 250),
+                        width=kwargs.get('picture_width', 300),
+                        height=kwargs.get('picture_height', 300),
                     ),
                     'width': self.picture.width,
                     'height': self.picture.height,
