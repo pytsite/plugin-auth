@@ -581,3 +581,7 @@ def on_user_delete(handler, priority: int = 0):
     """Shortcut
     """
     _events.listen('auth@user_delete', handler, priority)
+
+
+def on_user_as_jsonable(handler, priority: int = 0):
+    _events.listen('auth@user_as_jsonable', handler, priority)

@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.12 (2018-11-01)
+
+New API function `on_user_as_jsonable()`.
+
+
 ### 3.11.1 (2018-10-31)
 
 `AbstractUser.as_jsonable().picture.url` default width and height kwargs

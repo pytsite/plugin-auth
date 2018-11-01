@@ -749,6 +749,8 @@ class AbstractUser(AuthEntity):
                 'is_public': self.is_public,
             })
 
+        _events.fire('auth@user_as_jsonable', user=self, data=r)
+
         return r
 
     def __str__(self) -> str:
