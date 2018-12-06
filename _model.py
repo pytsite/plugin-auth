@@ -717,9 +717,7 @@ class AbstractUser(AuthEntity):
                 'first_last_name': self.first_last_name,
                 'full_name': self.full_name,
                 'timezone': self.timezone,
-                'birth_date': _util.w3c_datetime_str(self.birth_date),
                 'gender': self.gender,
-                'phone': self.phone,
                 'urls': self.urls,
                 'follows_count': self.follows_count,
                 'followers_count': self.followers_count,
@@ -747,6 +745,8 @@ class AbstractUser(AuthEntity):
                 'sign_in_count': self.sign_in_count,
                 'status': self.status,
                 'is_public': self.is_public,
+                'phone': self.phone,
+                'birth_date': _util.w3c_datetime_str(self.birth_date),
             })
 
         _events.fire('auth@user_as_jsonable', user=self, data=r)

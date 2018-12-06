@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.12.1 (2018-12-06)
+
+Information non-intended for public view removed form
+`AbstractUser.as_jsonable()` return value.
+
+
 ### 3.12 (2018-11-01)
 
 New API function `on_user_as_jsonable()`.
