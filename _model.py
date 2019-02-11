@@ -200,15 +200,21 @@ class AbstractUser(AuthEntity):
 
     @property
     def is_anonymous(self) -> bool:
-        """Check if the user is anonymous.
+        """Check if the user is anonymous
         """
         return self.login == ANONYMOUS_USER_LOGIN
 
     @property
     def is_system(self) -> bool:
-        """Check if the user is anonymous.
+        """Check if the user is system
         """
         return self.login == SYSTEM_USER_LOGIN
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Check if the user is authenticated
+        """
+        return not (self.is_anonymous or self.is_system)
 
     @property
     def is_admin(self) -> bool:

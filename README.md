@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.13 (2019-02-11)
+
+New property `AbstractUser.is_authenticated`.
+
+
 ### 3.12.1 (2018-12-06)
 
 Information non-intended for public view removed form

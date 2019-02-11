@@ -1,6 +1,6 @@
 {
   "name": "auth",
-  "version": "3.12.1",
+  "version": "3.13",
   "description": {
     "en": "Authentication and Authorization",
     "ru": "Аутентификация и авторизация",
@@ -13,12 +13,12 @@
     "url": "https://shepetko.com"
   },
   "requires": {
-    "pytsite": "8.x",
+    "pytsite": ">=8.9",
     "plugins": {
-      "permissions": "1.x",
-      "file": "1.x",
-      "geo_ip": "2.x",
-      "query": "1.x"
+      "permissions": "^1.2",
+      "file": "^1.8",
+      "geo_ip": "^2.0",
+      "query": "^1.3"
     }
   }
 }
