@@ -23,8 +23,9 @@ COUNTRY_MAX_LENGTH = 50
 POSTAL_CODE_MAX_LENGTH = 10
 PROVINCE_MAX_LENGTH = 50
 CITY_MAX_LENGTH = 50
+DISTRICT_MAX_LENGTH = 100
 STREET_MAX_LENGTH = 100
-HOUSE_NUMBER_MAX_LENGTH = 10
+BUILDING_MAX_LENGTH = 10
 APT_NUMBER_MAX_LENGTH = 10
 PHONE_MAX_LENGTH = 20
 USER_DESCRIPTION_MAX_LENGTH = 4096
@@ -533,6 +534,14 @@ class AbstractUser(AuthEntity):
         self.set_field('city', value)
 
     @property
+    def district(self) -> str:
+        return self.get_field('district')
+
+    @district.setter
+    def district(self, value: str):
+        self.set_field('district', value)
+
+    @property
     def street(self) -> str:
         return self.get_field('street')
 
@@ -541,12 +550,12 @@ class AbstractUser(AuthEntity):
         self.set_field('street', value)
 
     @property
-    def house_number(self) -> str:
-        return self.get_field('house_number')
+    def building(self) -> str:
+        return self.get_field('building')
 
-    @house_number.setter
-    def house_number(self, value: str):
-        self.set_field('house_number', value)
+    @building.setter
+    def building(self, value: str):
+        self.set_field('building', value)
 
     @property
     def apt_number(self) -> str:

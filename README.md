@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.15 (2019-03-09)
+
+- `AbstractUser.house_number` field renamed to `building`. 
+- New field `AbstractUser.district` added.
+
+
 ### 3.14 (2019-03-09)
 
 `AbstractUser.region` field renamed to `province`.
