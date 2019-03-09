@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.14 (2019-03-09)
+
+`AbstractUser.region` field renamed to `province`.
+
+
 ### 3.13 (2019-02-11)
 
 New property `AbstractUser.is_authenticated`.

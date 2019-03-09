@@ -21,7 +21,7 @@ LAST_NAME_MAX_LENGTH = 50
 USER_POSITION_MAX_LENGTH = 50
 COUNTRY_MAX_LENGTH = 50
 POSTAL_CODE_MAX_LENGTH = 10
-REGION_MAX_LENGTH = 50
+PROVINCE_MAX_LENGTH = 50
 CITY_MAX_LENGTH = 50
 STREET_MAX_LENGTH = 100
 HOUSE_NUMBER_MAX_LENGTH = 10
@@ -127,10 +127,10 @@ class AbstractRole(AuthEntity):
 
     def add_permission(self, perm: str):
         if perm not in self.permissions:
-            self.permissions = list(self.permissions) + [_permissions.get_permission(perm)[0]]
+            self.set_field('permissions', list(self.permissions) + [_permissions.get_permission(perm)[0]])
 
     def remove_permission(self, perm: str):
-        self.permissions = [p[0] for p in self.permissions if p[0] != perm]
+        self.set_field('permissions', [p[0] for p in self.permissions if p[0] != perm])
 
     @_abstractmethod
     def do_save(self):
@@ -517,12 +517,12 @@ class AbstractUser(AuthEntity):
         self.set_field('postal_code', value)
 
     @property
-    def region(self) -> str:
-        return self.get_field('region')
+    def province(self) -> str:
+        return self.get_field('province')
 
-    @region.setter
-    def region(self, value: str):
-        self.set_field('region', value)
+    @province.setter
+    def province(self, value: str):
+        self.set_field('province', value)
 
     @property
     def city(self) -> str:
