@@ -4,6 +4,11 @@
 ## Changelog
 
 
+### 3.16 (2019-05-10)
+
+New console command `auth:userdel` added.
+
+
 ### 3.15 (2019-03-09)
 
 - `AbstractUser.house_number` field renamed to `building`. 

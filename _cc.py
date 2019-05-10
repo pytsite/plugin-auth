@@ -38,6 +38,7 @@ class UserAdd(_console.Command):
         if not login:
             raise _console.error.MissingArgument('auth@login_required', 0)
 
+        user = None
         try:
             user = _api.create_user(login)
 
@@ -61,17 +62,17 @@ class UserAdd(_console.Command):
                 user.status = status
                 user.save()
 
+            # Prompt for a password
+            _console.run_command('auth:passwd', arguments=[login])
+
             _console.print_success(_lang.t('auth@user_created', {'login': login}))
 
-        except _error.Error as e:
-            raise _console.error.CommandExecutionError(e)
+        except Exception as e:
+            # Delete not completely created user
+            if user:
+                user.delete()
 
-        # Set password of the user
-        try:
-            _console.run_command('auth:passwd', arguments=[login])
-        except _console.error.Error as e:
-            user.delete()
-            raise e
+            raise _console.error.CommandExecutionError(e)
 
 
 class UserMod(_console.Command):
@@ -180,4 +181,36 @@ class Passwd(_console.Command):
             _console.print_success(_lang.t('auth@password_successfully_changed', {'login': user.login}))
 
         except Exception as e:
+            raise _console.error.CommandExecutionError(e)
+
+
+class UserDel(_console.Command):
+    """auth:userdel Console Command
+    """
+
+    @property
+    def name(self) -> str:
+        """Get command's name
+        """
+        return 'auth:userdel'
+
+    @property
+    def description(self) -> str:
+        """Get command's description
+        """
+        return 'auth@userdel_console_command_description'
+
+    def exec(self):
+        """Execute the command
+        """
+        login = self.arg(0)
+        if not login:
+            raise _console.error.MissingArgument('auth@login_required')
+
+        try:
+            _api.get_user(login).delete()
+
+            _console.print_success(_lang.t('auth@user_deleted', {'login': login}))
+
+        except _error.Error as e:
             raise _console.error.CommandExecutionError(e)

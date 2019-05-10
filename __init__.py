@@ -49,3 +49,4 @@ def plugin_load_console():
     console.register_command(_cc.UserAdd())
     console.register_command(_cc.UserMod())
     console.register_command(_cc.Passwd())
+    console.register_command(_cc.UserDel())
