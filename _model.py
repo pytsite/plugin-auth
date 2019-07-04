@@ -4,12 +4,12 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from abc import ABC as _ABC, abstractmethod as _abstractmethod
-from typing import Union as _Union, Tuple as _Tuple, List as _List, Any as _Any
-from datetime import datetime as _datetime
-from pytz import timezone as _timezone
-from pytsite import util as _util, events as _events, errors as _errors, lang as _lang
-from plugins import permissions as _permissions, geo_ip as _geo_ip, file as _file, query as _query
+from abc import ABC, abstractmethod
+from typing import Union as Union, Tuple, List, Any
+from datetime import datetime
+from pytz import timezone
+from pytsite import util, events, errors, lang
+from plugins import permissions, geo_ip, file, query
 
 ANONYMOUS_USER_LOGIN = 'anonymous@anonymous.anonymous'
 SYSTEM_USER_LOGIN = 'system@system.system'
@@ -31,7 +31,7 @@ PHONE_MAX_LENGTH = 20
 USER_DESCRIPTION_MAX_LENGTH = 4096
 
 
-class AuthEntity(_ABC):
+class AuthEntity(ABC):
     """Abstract Auth Entity Model
     """
 
@@ -42,45 +42,45 @@ class AuthEntity(_ABC):
         return self.get_field('uid')
 
     @property
-    @_abstractmethod
+    @abstractmethod
     def is_new(self) -> bool:
         raise NotImplementedError()
 
     @property
-    @_abstractmethod
+    @abstractmethod
     def is_modified(self) -> str:
         raise NotImplementedError()
 
     @property
-    @_abstractmethod
-    def created(self) -> _datetime:
+    @abstractmethod
+    def created(self) -> datetime:
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def save(self):
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def delete(self):
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def has_field(self, field_name: str) -> bool:
         raise NotImplementedError()
 
-    @_abstractmethod
-    def get_field(self, field_name: str, **kwargs) -> _Any:
+    @abstractmethod
+    def get_field(self, field_name: str, **kwargs) -> Any:
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def set_field(self, field_name: str, value):
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def add_to_field(self, field_name: str, value):
         raise NotImplementedError()
 
-    @_abstractmethod
+    @abstractmethod
     def sub_from_field(self, field_name: str, value):
         raise NotImplementedError()
 
@@ -119,34 +119,34 @@ class AbstractRole(AuthEntity):
         self.set_field('description', value)
 
     @property
-    def permissions(self) -> _Tuple:
+    def permissions(self) -> Tuple:
         return self.get_field('permissions')
 
     @permissions.setter
-    def permissions(self, value: _Union[_List, _Tuple]):
+    def permissions(self, value: Union[List, Tuple]):
         self.set_field('permissions', value)
 
     def add_permission(self, perm: str):
         if perm not in self.permissions:
-            self.set_field('permissions', list(self.permissions) + [_permissions.get_permission(perm)[0]])
+            self.set_field('permissions', list(self.permissions) + [permissions.get_permission(perm)[0]])
 
     def remove_permission(self, perm: str):
         self.set_field('permissions', [p[0] for p in self.permissions if p[0] != perm])
 
-    @_abstractmethod
+    @abstractmethod
     def do_save(self):
         """Does actual saving of the user
         """
         raise NotImplementedError()
 
     def save(self):
-        _events.fire('auth@role_pre_save', role=self)
+        events.fire('auth@role_pre_save', role=self)
         self.do_save()
-        _events.fire('auth@role_save', role=self)
+        events.fire('auth@role_save', role=self)
 
         return self
 
-    @_abstractmethod
+    @abstractmethod
     def do_delete(self):
         """Does actual deletion of the user
         """
@@ -156,13 +156,13 @@ class AbstractRole(AuthEntity):
         from . import _api
 
         # Check if the role is used by users
-        user = _api.find_user(_query.Query(_query.Eq('roles', self)))
+        user = _api.find_user(query.Query(query.Eq('roles', self)))
         if user:
-            raise _errors.ForbidDeletion(_lang.t('role_used_by_user', {'role': self, 'user': user.login}))
+            raise errors.ForbidDeletion(lang.t('role_used_by_user', {'role': self, 'user': user.login}))
 
-        _events.fire('auth@role_pre_delete', user=self)
+        events.fire('auth@role_pre_delete', user=self)
         self.do_delete()
-        _events.fire('auth@role_delete', user=self)
+        events.fire('auth@role_delete', user=self)
 
         return self
 
@@ -231,14 +231,14 @@ class AbstractUser(AuthEntity):
 
     @property
     def is_online(self) -> bool:
-        return (_datetime.now() - self.last_activity).seconds < 180
+        return (datetime.now() - self.last_activity).seconds < 180
 
     @property
-    def geo_ip(self) -> _geo_ip.GeoIP:
+    def geo_ip(self) -> geo_ip.GeoIP:
         try:
-            return _geo_ip.resolve(self.last_ip)
-        except _geo_ip.error.ResolveError:
-            return _geo_ip.resolve('0.0.0.0')
+            return geo_ip.resolve(self.last_ip)
+        except geo_ip.error.ResolveError:
+            return geo_ip.resolve('0.0.0.0')
 
     @property
     def login(self) -> str:
@@ -338,30 +338,30 @@ class AbstractUser(AuthEntity):
 
     @property
     def localtime(self):
-        return _datetime.now(_timezone(self.timezone) if self.timezone else 'UTC')
+        return datetime.now(timezone(self.timezone) if self.timezone else 'UTC')
 
     @property
-    def birth_date(self) -> _datetime:
+    def birth_date(self) -> datetime:
         return self.get_field('birth_date')
 
     @birth_date.setter
-    def birth_date(self, value: _datetime):
+    def birth_date(self, value: datetime):
         self.set_field('birth_date', value)
 
     @property
-    def last_sign_in(self) -> _datetime:
+    def last_sign_in(self) -> datetime:
         return self.get_field('last_sign_in')
 
     @last_sign_in.setter
-    def last_sign_in(self, value: _datetime):
+    def last_sign_in(self, value: datetime):
         self.set_field('last_sign_in', value)
 
     @property
-    def last_activity(self) -> _datetime:
+    def last_activity(self) -> datetime:
         return self.get_field('last_activity')
 
     @last_activity.setter
-    def last_activity(self, value: _datetime):
+    def last_activity(self, value: datetime):
         self.set_field('last_activity', value)
 
     @property
@@ -385,7 +385,7 @@ class AbstractUser(AuthEntity):
         return self.status == 'active'
 
     @property
-    def roles(self) -> _Tuple[AbstractRole]:
+    def roles(self) -> Tuple[AbstractRole]:
         if self.is_anonymous:
             from . import _api
             return _api.get_role('anonymous'),
@@ -393,7 +393,7 @@ class AbstractUser(AuthEntity):
         return self.get_field('roles')
 
     @roles.setter
-    def roles(self, value: _Tuple[AbstractRole]):
+    def roles(self, value: Tuple[AbstractRole]):
         self.set_field('roles', value)
 
     @property
@@ -429,19 +429,19 @@ class AbstractUser(AuthEntity):
         return self.options.get(key, default)
 
     @property
-    def picture(self) -> _file.model.AbstractImage:
+    def picture(self) -> file.model.AbstractImage:
         return self.get_field('picture')
 
     @picture.setter
-    def picture(self, value: _file.model.AbstractImage):
+    def picture(self, value: file.model.AbstractImage):
         self.set_field('picture', value)
 
     @property
-    def cover_picture(self) -> _file.model.AbstractImage:
+    def cover_picture(self) -> file.model.AbstractImage:
         return self.get_field('cover_picture')
 
     @cover_picture.setter
-    def cover_picture(self, value: _file.model.AbstractImage):
+    def cover_picture(self, value: file.model.AbstractImage):
         self.set_field('cover_picture', value)
 
     @property
@@ -463,7 +463,7 @@ class AbstractUser(AuthEntity):
     @property
     def follows(self):
         """
-        :return: _Iterable[AbstractUser]
+        :return: Iterable[AbstractUser]
         """
         return self.get_field('follows', skip=0, count=0)
 
@@ -474,7 +474,7 @@ class AbstractUser(AuthEntity):
     @property
     def followers(self):
         """
-        :return: _Iterable[AbstractUser]
+        :return: Iterable[AbstractUser]
         """
         return self.get_field('followers', skip=0, count=0)
 
@@ -485,7 +485,7 @@ class AbstractUser(AuthEntity):
     @property
     def blocked_users(self):
         """
-        :rtype: _Iterable[AbstractUser]
+        :rtype: Iterable[AbstractUser]
         """
         return self.get_field('blocked_users', skip=0, count=0)
 
@@ -567,7 +567,7 @@ class AbstractUser(AuthEntity):
 
     def set_field(self, field_name: str, value):
         if field_name == 'status' and value != self.status and not self.is_new:
-            _events.fire('auth@user_status_change', user=self, status=value)
+            events.fire('auth@user_status_change', user=self, status=value)
 
         return self
 
@@ -623,7 +623,7 @@ class AbstractUser(AuthEntity):
         """
         return self.sub_from_field('blocked_users', self._check_user(user))
 
-    def has_role(self, name: _Union[str, list, tuple]) -> bool:
+    def has_role(self, name: Union[str, list, tuple]) -> bool:
         """Checks if the user has a role
         """
         # System user has all roles
@@ -640,7 +640,7 @@ class AbstractUser(AuthEntity):
 
         return name in [role.name for role in self.roles]
 
-    def has_permission(self, name: _Union[str, list, tuple]) -> bool:
+    def has_permission(self, name: Union[str, list, tuple]) -> bool:
         """Checks if the user has a permission or one of the permissions
         """
         # Admins have unrestricted permissions
@@ -656,7 +656,7 @@ class AbstractUser(AuthEntity):
             return False
 
         # Checking for permission existence
-        _permissions.get_permission(name)
+        permissions.get_permission(name)
 
         # Search for permission through user's roles
         for role in self.roles:
@@ -665,7 +665,7 @@ class AbstractUser(AuthEntity):
 
         return False
 
-    @_abstractmethod
+    @abstractmethod
     def do_save(self):
         """Does actual saving of the user
         """
@@ -678,20 +678,20 @@ class AbstractUser(AuthEntity):
         if self.is_system:
             raise RuntimeError('System user cannot be saved')
 
-        _events.fire('auth@user_pre_save', user=self)
+        events.fire('auth@user_pre_save', user=self)
         self.do_save()
-        _events.fire('auth@user_save', user=self)
+        events.fire('auth@user_save', user=self)
 
         return self
 
-    @_abstractmethod
+    @abstractmethod
     def do_delete(self):
         """Does actual deletion of the user
         """
         raise NotImplementedError()
 
     def delete(self):
-        _events.fire('auth@user_pre_delete', user=self)
+        events.fire('auth@user_pre_delete', user=self)
 
         for user in self.follows:
             self.remove_follows(user)
@@ -701,7 +701,7 @@ class AbstractUser(AuthEntity):
 
         self.do_delete()
 
-        _events.fire('auth@user_delete', user=self)
+        events.fire('auth@user_delete', user=self)
 
         return self
 
@@ -753,18 +753,18 @@ class AbstractUser(AuthEntity):
 
         if current_user == self or current_user.is_admin:
             r.update({
-                'created': _util.w3c_datetime_str(self.created),
+                'created': util.w3c_datetime_str(self.created),
                 'login': self.login,
-                'last_sign_in': _util.w3c_datetime_str(self.last_sign_in),
-                'last_activity': _util.w3c_datetime_str(self.last_activity),
+                'last_sign_in': util.w3c_datetime_str(self.last_sign_in),
+                'last_activity': util.w3c_datetime_str(self.last_activity),
                 'sign_in_count': self.sign_in_count,
                 'status': self.status,
                 'is_public': self.is_public,
                 'phone': self.phone,
-                'birth_date': _util.w3c_datetime_str(self.birth_date),
+                'birth_date': util.w3c_datetime_str(self.birth_date),
             })
 
-        _events.fire('auth@user_as_jsonable', user=self, data=r)
+        events.fire('auth@user_as_jsonable', user=self, data=r)
 
         return r
 

@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.16.1 (2019-07-04)
+
+- Init code fixed.
+- Cleanup.
+
+
 ### 3.16 (2019-05-10)
 
 New console command `auth:userdel` added.

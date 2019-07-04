@@ -4,7 +4,7 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from pytsite import events as _events, lang as _lang
+from pytsite import events, lang
 
 
 class Error(Exception):
@@ -15,20 +15,20 @@ class AuthenticationError(Error):
     def __init__(self, msg: str = None, **kwargs):
         self._msg = msg
 
-        _events.fire('auth@sign_in_error', exception=self, user=kwargs.get('user'))
+        events.fire('auth@sign_in_error', exception=self, user=kwargs.get('user'))
 
     def __str__(self) -> str:
-        return self._msg or _lang.t('auth@authentication_error')
+        return self._msg or lang.t('auth@authentication_error')
 
 
 class SignUpError(Error):
     def __init__(self, msg: str = None, **kwargs):
         self._msg = msg
 
-        _events.fire('auth@sign_up_error', exception=self, data=kwargs.get('data'))
+        events.fire('auth@sign_up_error', exception=self, data=kwargs.get('data'))
 
     def __str__(self) -> str:
-        return self._msg or _lang.t('auth@sign_up_error')
+        return self._msg or lang.t('auth@sign_up_error')
 
 
 class NoDriverRegistered(Error):
@@ -61,22 +61,22 @@ class RoleAlreadyExists(Error):
 
 class UserNotFound(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@user_not_found')
+        return lang.t('auth@user_not_found')
 
 
 class UserNotActive(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@user_not_active')
+        return lang.t('auth@user_not_active')
 
 
 class UserNotConfirmed(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@user_not_confirmed')
+        return lang.t('auth@user_not_confirmed')
 
 
 class UserExists(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@user_exists')
+        return lang.t('auth@user_exists')
 
 
 class UserCreateError(Error):
@@ -105,4 +105,4 @@ class RoleDeleteForbidden(Error):
 
 class SignupDisabled(Error):
     def __str__(self) -> str:
-        return _lang.t('auth@signup_is_disabled')
+        return lang.t('auth@signup_is_disabled')

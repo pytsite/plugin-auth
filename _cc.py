@@ -4,20 +4,20 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from getpass import getpass as _getpass
-from pytsite import console as _console, lang as _lang
+from getpass import getpass
+from pytsite import console, lang
 from . import _api, _error
 
 
-class UserAdd(_console.Command):
+class UserAdd(console.Command):
     """auth:useradd Console Command
     """
 
     def __init__(self):
         super().__init__()
 
-        self.define_option(_console.option.Str('roles'))
-        self.define_option(_console.option.Str('status'))
+        self.define_option(console.option.Str('roles'))
+        self.define_option(console.option.Str('status'))
 
     @property
     def name(self) -> str:
@@ -36,7 +36,7 @@ class UserAdd(_console.Command):
         """
         login = self.arg(0)
         if not login:
-            raise _console.error.MissingArgument('auth@login_required', 0)
+            raise console.error.MissingArgument('auth@login_required')
 
         user = None
         try:
@@ -63,27 +63,27 @@ class UserAdd(_console.Command):
                 user.save()
 
             # Prompt for a password
-            _console.run_command('auth:passwd', arguments=[login])
+            console.run_command('auth:passwd', arguments=[login])
 
-            _console.print_success(_lang.t('auth@user_created', {'login': login}))
+            console.print_success(lang.t('auth@user_created', {'login': login}))
 
         except Exception as e:
             # Delete not completely created user
             if user:
                 user.delete()
 
-            raise _console.error.CommandExecutionError(e)
+            raise console.error.CommandExecutionError(e)
 
 
-class UserMod(_console.Command):
+class UserMod(console.Command):
     """auth:usermod Console Command
     """
 
     def __init__(self):
         super().__init__()
 
-        self.define_option(_console.option.Str('roles'))
-        self.define_option(_console.option.Str('status'))
+        self.define_option(console.option.Str('roles'))
+        self.define_option(console.option.Str('status'))
 
     @property
     def name(self) -> str:
@@ -102,7 +102,7 @@ class UserMod(_console.Command):
         """
         login = self.arg(0)
         if not login:
-            raise _console.error.MissingArgument('auth@login_required', 0)
+            raise console.error.MissingArgument('auth@login_required')
 
         try:
             user = _api.get_user(login)
@@ -121,7 +121,7 @@ class UserMod(_console.Command):
                     try:
                         user.add_role(_api.get_role(role_name))
                     except _error.RoleNotFound as e:
-                        _console.print_warning(e)
+                        console.print_warning(e)
 
             # Set status
             if status:
@@ -129,13 +129,13 @@ class UserMod(_console.Command):
 
             if user.is_modified:
                 user.save()
-                _console.print_success(_lang.t('auth@user_modified', {'login': login}))
+                console.print_success(lang.t('auth@user_modified', {'login': login}))
 
         except _error.Error as e:
-            raise _console.error.CommandExecutionError(e)
+            raise console.error.CommandExecutionError(e)
 
 
-class Passwd(_console.Command):
+class Passwd(console.Command):
     """auth:passwd Console Command
     """
 
@@ -156,35 +156,35 @@ class Passwd(_console.Command):
         """
         login = self.arg(0)
         if not login:
-            raise _console.error.MissingArgument('auth@login_required', 0)
+            raise console.error.MissingArgument('auth@login_required')
 
         try:
             user = _api.get_user(login)
         except _error.UserNotFound as e:
-            raise _console.error.CommandExecutionError(e)
+            raise console.error.CommandExecutionError(e)
 
         while True:
-            pass_1 = _getpass(_lang.t('auth@enter_new_password', {'login': user.login}) + ': ')
+            pass_1 = getpass(lang.t('auth@enter_new_password', {'login': user.login}) + ': ')
             if not pass_1:
-                raise _console.error.CommandExecutionError(_lang.t('auth@password_cannot_be_empty'))
+                raise console.error.CommandExecutionError(lang.t('auth@password_cannot_be_empty'))
 
-            pass_2 = _getpass(_lang.t('auth@retype_password') + ': ')
+            pass_2 = getpass(lang.t('auth@retype_password') + ': ')
 
             if pass_1 != pass_2:
-                _console.print_error(_lang.t('auth@passwords_dont_match'))
+                console.print_error(lang.t('auth@passwords_dont_match'))
             else:
                 break
 
         try:
             user.password = pass_2
             user.save()
-            _console.print_success(_lang.t('auth@password_successfully_changed', {'login': user.login}))
+            console.print_success(lang.t('auth@password_successfully_changed', {'login': user.login}))
 
         except Exception as e:
-            raise _console.error.CommandExecutionError(e)
+            raise console.error.CommandExecutionError(e)
 
 
-class UserDel(_console.Command):
+class UserDel(console.Command):
     """auth:userdel Console Command
     """
 
@@ -205,12 +205,12 @@ class UserDel(_console.Command):
         """
         login = self.arg(0)
         if not login:
-            raise _console.error.MissingArgument('auth@login_required')
+            raise console.error.MissingArgument('auth@login_required')
 
         try:
             _api.get_user(login).delete()
 
-            _console.print_success(_lang.t('auth@user_deleted', {'login': login}))
+            console.print_success(lang.t('auth@user_deleted', {'login': login}))
 
         except _error.Error as e:
-            raise _console.error.CommandExecutionError(e)
+            raise console.error.CommandExecutionError(e)

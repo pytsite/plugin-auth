@@ -4,35 +4,34 @@ __author__ = 'Oleksandr Shepetko'
 __email__ = 'a@shepetko.com'
 __license__ = 'MIT'
 
-from typing import Dict as _Dict, Iterator as _Iterator, List as _List, Tuple as _Tuple, Optional as _Optional
-from collections import OrderedDict as _OrderedDict
-from datetime import datetime as _datetime, timedelta as _timedelta
-from pytsite import reg as _reg, lang as _lang, cache as _cache, events as _events, util as _util, \
-    validation as _validation, threading as _threading
-from plugins import query as _query
+from typing import Dict, Iterator, List, Tuple, Optional
+from collections import OrderedDict
+from datetime import datetime, timedelta
+from pytsite import reg, lang, cache, events, util, validation, threading
+from plugins import query
 from . import _error, _model, _driver
 
 USER_STATUS_ACTIVE = 'active'
 USER_STATUS_WAITING = 'waiting'
 USER_STATUS_DISABLED = 'disabled'
 
-_authentication_drivers = _OrderedDict()  # type: _Dict[str, _driver.Authentication]
+_authentication_drivers = OrderedDict()  # type: Dict[str, _driver.Authentication]
 _storage_driver = None  # type: _driver.Storage
 
 _permission_groups = []
-_permissions = []
+permissions = []
 _anonymous_user = None
 _system_user = None
-_access_tokens = _cache.create_pool('auth.access_tokens')  # token: token_info
-_user_access_tokens = _cache.create_pool('auth.user_access_tokens')  # user.uid: tokens
+_access_tokens = cache.create_pool('auth.access_tokens')  # token: token_info
+_user_access_tokens = cache.create_pool('auth.user_access_tokens')  # user.uid: tokens
 _current_user = {}  # Current users, per thread
 _previous_user = {}  # Previous users, per thread
-_access_token_ttl = _reg.get('auth.access_token_ttl', 86400)  # 24 hours
+_access_token_ttl = reg.get('auth.access_token_ttl', 86400)  # 24 hours
 
-user_login_rule = _validation.rule.Regex(msg_id='auth@login_str_rules',
-                                         pattern='^[A-Za-z0-9][A-Za-z0-9.\-_@]{1,64}$')
-user_nickname_rule = _validation.rule.Regex(msg_id='auth@nickname_str_rules',
-                                            pattern='^[A-Za-z0-9][A-Za-z0-9.\-_]{0,31}$')
+user_login_rule = validation.rule.Regex(msg_id='auth@login_str_rules',
+                                        pattern='^[A-Za-z0-9][A-Za-z0-9.\-_@]{1,64}$')
+user_nickname_rule = validation.rule.Regex(msg_id='auth@nickname_str_rules',
+                                           pattern='^[A-Za-z0-9][A-Za-z0-9.\-_]{0,31}$')
 
 
 def hash_password(secret: str) -> str:
@@ -62,7 +61,7 @@ def register_auth_driver(driver: _driver.Authentication):
     _authentication_drivers[name] = driver
 
 
-def get_auth_drivers() -> _Dict[str, _driver.Authentication]:
+def get_auth_drivers() -> Dict[str, _driver.Authentication]:
     """Get all registered authentication drivers
     """
     return _authentication_drivers
@@ -73,7 +72,7 @@ def get_auth_driver(name: str = None) -> _driver.Authentication:
     """
     if name is None:
         if _authentication_drivers:
-            name = _reg.get('auth.auth_driver')
+            name = reg.get('auth.auth_driver')
             if not name or name not in _authentication_drivers:
                 name = list(_authentication_drivers)[-1]
         else:
@@ -98,13 +97,13 @@ def register_storage_driver(driver: _driver.Storage):
 
     _storage_driver = driver
 
-    _events.fire('auth@register_storage_driver', driver=driver)
+    events.fire('auth@register_storage_driver', driver=driver)
 
 
 def on_register_storage_driver(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@register_storage_driver', handler, priority)
+    events.listen('auth@register_storage_driver', handler, priority)
 
 
 def get_storage_driver() -> _driver.Storage:
@@ -121,7 +120,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
     """Create a new user
     """
     if not login:
-        raise _error.UserCreateError(_lang.t('auth@login_str_rules'))
+        raise _error.UserCreateError(lang.t('auth@login_str_rules'))
 
     # Various checks
     if login not in (_model.ANONYMOUS_USER_LOGIN, _model.SYSTEM_USER_LOGIN):
@@ -134,7 +133,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
             # Check user login
             try:
                 user_login_rule.validate(login)
-            except _validation.error.RuleError as e:
+            except validation.error.RuleError as e:
                 raise _error.UserCreateError(e)
 
     # Create user
@@ -152,7 +151,7 @@ def create_user(login: str, password: str = None) -> _model.AbstractUser:
         user.roles = [get_role(r) for r in get_new_user_roles()]
         user.save()
 
-        _events.fire('auth@user_create', user=user)
+        events.fire('auth@user_create', user=user)
 
     else:
         user.status = USER_STATUS_ACTIVE
@@ -180,20 +179,20 @@ def get_user(login: str = None, nickname: str = None, uid: str = None, access_to
     return user
 
 
-def get_admin_users(sort: _List[_Tuple[str, int]] = None, active_only: bool = True) -> _Iterator[_model.AbstractUser]:
+def get_admin_users(sort: List[Tuple[str, int]] = None, active_only: bool = True) -> Iterator[_model.AbstractUser]:
     """Get admin users
     """
     if sort is None:
         sort = [('created', 1)]
 
-    q = _query.Query(_query.Eq('roles', get_role('admin')))
+    q = query.Query(query.Eq('roles', get_role('admin')))
     if active_only:
-        q.add(_query.Eq('status', 'active'))
+        q.add(query.Eq('status', 'active'))
 
     return find_users(q, sort)
 
 
-def get_admin_user(sort: _List[_Tuple[str, int]] = None, active_only: bool = True) -> _model.AbstractUser:
+def get_admin_user(sort: List[Tuple[str, int]] = None, active_only: bool = True) -> _model.AbstractUser:
     """Get first admin user
     """
     try:
@@ -255,11 +254,11 @@ def sign_in(auth_driver_name: str = None, data: dict = None) -> _model.AbstractU
 
     # Update statistics
     user.sign_in_count += 1
-    user.last_sign_in = _datetime.now()
+    user.last_sign_in = datetime.now()
     user.save()
 
     # Login event
-    _events.fire('auth@sign_in', user=user)
+    events.fire('auth@sign_in', user=user)
 
     return user
 
@@ -270,7 +269,7 @@ def get_access_token_info(token: str) -> dict:
     try:
         return _access_tokens.get(token)
 
-    except _cache.error.KeyNotExist:
+    except cache.error.KeyNotExist:
         raise _error.InvalidAccessToken('Invalid access token')
 
 
@@ -278,15 +277,15 @@ def generate_access_token(user: _model.AbstractUser) -> str:
     """Generate a new access token
     """
     while True:
-        token = _util.random_str(32)
+        token = util.random_str(32)
 
         if not _access_tokens.has(token):
-            now = _datetime.now()
+            now = datetime.now()
             t_info = {
                 'user_uid': user.uid,
                 'ttl': _access_token_ttl,
                 'created': now,
-                'expires': now + _timedelta(seconds=_access_token_ttl),
+                'expires': now + timedelta(seconds=_access_token_ttl),
             }
 
             _access_tokens.put(token, t_info, _access_token_ttl)
@@ -295,18 +294,18 @@ def generate_access_token(user: _model.AbstractUser) -> str:
                 user_tokens = _user_access_tokens.get(user.uid)  # type: list
                 user_tokens.append(token)
                 _user_access_tokens.put(user.uid, user_tokens)
-            except _cache.error.KeyNotExist:
+            except cache.error.KeyNotExist:
                 _user_access_tokens.put(user.uid, [token])
 
             return token
 
 
-def get_user_access_tokens(user: _model.AbstractUser) -> _List[str]:
+def get_user_access_tokens(user: _model.AbstractUser) -> List[str]:
     """Get user's access tokens
     """
     try:
         return _user_access_tokens.get(user.uid)
-    except _cache.error.KeyNotExist:
+    except cache.error.KeyNotExist:
         return []
 
 
@@ -317,7 +316,7 @@ def revoke_access_token(token: str):
         raise _error.InvalidAccessToken('Invalid access token')
 
     user_uid = get_access_token_info(token)['user_uid']
-    user_tokens = _user_access_tokens.get(user_uid)  # type: _List[str]
+    user_tokens = _user_access_tokens.get(user_uid)  # type: List[str]
     user_tokens.remove(token)
     _user_access_tokens.put(user_uid, user_tokens)
 
@@ -336,7 +335,7 @@ def prolong_access_token(token: str):
     """Prolong an access token
     """
     token_info = get_access_token_info(token)
-    token_info['expires'] = _datetime.now() + _timedelta(seconds=_access_token_ttl),
+    token_info['expires'] = datetime.now() + timedelta(seconds=_access_token_ttl),
     _access_tokens.put(token, token_info, _access_token_ttl)
 
 
@@ -356,7 +355,7 @@ def sign_out(user: _model.AbstractUser):
             driver.sign_out(user)
 
         # Notify listeners
-        _events.fire('auth@sign_out', user=user)
+        events.fire('auth@sign_out', user=user)
 
     finally:
         # Set anonymous user as current
@@ -366,7 +365,7 @@ def sign_out(user: _model.AbstractUser):
 def get_current_user() -> _model.AbstractUser:
     """Get currently signed in user
     """
-    user = _current_user.get(_threading.get_id())
+    user = _current_user.get(threading.get_id())
     if user:
         return user
 
@@ -376,7 +375,7 @@ def get_current_user() -> _model.AbstractUser:
 def switch_user(user: _model.AbstractUser):
     """Switch current user
     """
-    tid = _threading.get_id()
+    tid = threading.get_id()
     _previous_user[tid] = _current_user[tid] if tid in _current_user else get_anonymous_user()
     _current_user[tid] = user
 
@@ -386,7 +385,7 @@ def switch_user(user: _model.AbstractUser):
 def restore_user() -> _model.AbstractUser:
     """Switch back to the previous user
     """
-    tid = _threading.get_id()
+    tid = threading.get_id()
     _current_user[tid] = _previous_user[tid] if tid in _previous_user else get_anonymous_user()
 
     return _current_user[tid]
@@ -408,61 +407,61 @@ def get_user_statuses() -> tuple:
     """Get valid user statuses
     """
     return (
-        ('active', _lang.t('auth@status_active')),
-        ('waiting', _lang.t('auth@status_waiting')),
-        ('disabled', _lang.t('auth@status_disabled')),
+        ('active', lang.t('auth@status_active')),
+        ('waiting', lang.t('auth@status_waiting')),
+        ('disabled', lang.t('auth@status_disabled')),
     )
 
 
 def get_new_user_status() -> str:
     """Get status of newly created user
     """
-    return _reg.get('auth.new_user_status', 'waiting')
+    return reg.get('auth.new_user_status', 'waiting')
 
 
 def get_new_user_roles() -> list:
     """Get default roles of newly created user
     """
-    return _reg.get('auth.new_user_roles', ['user'])
+    return reg.get('auth.new_user_roles', ['user'])
 
 
-def find_users(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
-               skip: int = 0) -> _Iterator[_model.AbstractUser]:
+def find_users(query: query.Query = None, sort: List[Tuple[str, int]] = None, limit: int = 0,
+               skip: int = 0) -> Iterator[_model.AbstractUser]:
     """Find users
     """
     return get_storage_driver().find_users(query, sort, limit, skip)
 
 
-def find_user(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
-              skip: int = 0) -> _Optional[_model.AbstractUser]:
+def find_user(query: query.Query = None, sort: List[Tuple[str, int]] = None, limit: int = 0,
+              skip: int = 0) -> Optional[_model.AbstractUser]:
     try:
         return next(find_users(query, sort, limit, skip))
     except StopIteration:
         return None
 
 
-def find_roles(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
-               skip: int = 0) -> _Iterator[_model.AbstractRole]:
+def find_roles(query: query.Query = None, sort: List[Tuple[str, int]] = None, limit: int = 0,
+               skip: int = 0) -> Iterator[_model.AbstractRole]:
     """Get roles iterable
     """
     return get_storage_driver().find_roles(query, sort, limit, skip)
 
 
-def find_role(query: _query.Query = None, sort: _List[_Tuple[str, int]] = None, limit: int = 0,
-              skip: int = 0) -> _Optional[_model.AbstractRole]:
+def find_role(query: query.Query = None, sort: List[Tuple[str, int]] = None, limit: int = 0,
+              skip: int = 0) -> Optional[_model.AbstractRole]:
     try:
         return next(find_roles(query, sort, limit, skip))
     except StopIteration:
         return None
 
 
-def count_users(query: _query.Query = None) -> int:
+def count_users(query: query.Query = None) -> int:
     """Count users
     """
     return get_storage_driver().count_users(query)
 
 
-def count_roles(query: _query.Query = None) -> int:
+def count_roles(query: query.Query = None) -> int:
     """Count roles
     """
     return get_storage_driver().count_roles(query)
@@ -471,25 +470,25 @@ def count_roles(query: _query.Query = None) -> int:
 def is_sign_up_enabled() -> bool:
     """Check if the registration of new users is allowed
     """
-    return _reg.get('auth.signup_enabled', False)
+    return reg.get('auth.signup_enabled', False)
 
 
 def is_sign_up_confirmation_required() -> bool:
     """Check if the confirmation of the registration of new users is required
     """
-    return _reg.get('auth.signup_confirmation_required', True)
+    return reg.get('auth.signup_confirmation_required', True)
 
 
 def is_sign_up_admins_notification_enabled() -> bool:
     """Check if the notification of admins about new users registration is enabled
     """
-    return _reg.get('auth.signup_admins_notification_enabled', True)
+    return reg.get('auth.signup_admins_notification_enabled', True)
 
 
 def is_user_status_change_notification_enabled() -> bool:
     """Check if the notification of the user status change si enabled
     """
-    return _reg.get('auth.user_status_change_notification_enabled', True)
+    return reg.get('auth.user_status_change_notification_enabled', True)
 
 
 def sign_up(auth_driver_name: str = None, data: dict = None) -> _model.AbstractUser:
@@ -500,7 +499,7 @@ def sign_up(auth_driver_name: str = None, data: dict = None) -> _model.AbstractU
 
     user = get_auth_driver(auth_driver_name).sign_up(data)
 
-    _events.fire('auth@sign_up', user=user)
+    events.fire('auth@sign_up', user=user)
 
     return user
 
@@ -508,80 +507,80 @@ def sign_up(auth_driver_name: str = None, data: dict = None) -> _model.AbstractU
 def on_sign_up(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@sign_up', handler, priority)
+    events.listen('auth@sign_up', handler, priority)
 
 
 def on_sign_in(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@sign_in', handler, priority)
+    events.listen('auth@sign_in', handler, priority)
 
 
 def on_sign_out(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@sign_out', handler, priority)
+    events.listen('auth@sign_out', handler, priority)
 
 
 def on_role_pre_save(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@role_pre_save', handler, priority)
+    events.listen('auth@role_pre_save', handler, priority)
 
 
 def on_role_save(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@role_save', handler, priority)
+    events.listen('auth@role_save', handler, priority)
 
 
 def on_role_pre_delete(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@role_pre_delete', handler, priority)
+    events.listen('auth@role_pre_delete', handler, priority)
 
 
 def on_role_delete(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@role_delete', handler, priority)
+    events.listen('auth@role_delete', handler, priority)
 
 
 def on_user_create(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_create', handler, priority)
+    events.listen('auth@user_create', handler, priority)
 
 
 def on_user_status_change(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_status_change', handler, priority)
+    events.listen('auth@user_status_change', handler, priority)
 
 
 def on_user_pre_save(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_pre_save', handler, priority)
+    events.listen('auth@user_pre_save', handler, priority)
 
 
 def on_user_save(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_save', handler, priority)
+    events.listen('auth@user_save', handler, priority)
 
 
 def on_user_pre_delete(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_pre_delete', handler, priority)
+    events.listen('auth@user_pre_delete', handler, priority)
 
 
 def on_user_delete(handler, priority: int = 0):
     """Shortcut
     """
-    _events.listen('auth@user_delete', handler, priority)
+    events.listen('auth@user_delete', handler, priority)
 
 
 def on_user_as_jsonable(handler, priority: int = 0):
-    _events.listen('auth@user_as_jsonable', handler, priority)
+    events.listen('auth@user_as_jsonable', handler, priority)
