@@ -4,6 +4,12 @@
 ## Changelog
 
 
+### 3.17 (2019-07-06)
+
+- New API function `get_previous_user()` added.
+- Fixed thread safety of API function `switch_user()`.
+
+
 ### 3.16.1 (2019-07-04)
 
 - Init code fixed.

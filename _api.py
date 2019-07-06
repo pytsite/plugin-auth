@@ -363,20 +363,36 @@ def sign_out(user: _model.AbstractUser):
 
 
 def get_current_user() -> _model.AbstractUser:
-    """Get currently signed in user
+    """Get current user
     """
-    user = _current_user.get(threading.get_id())
-    if user:
-        return user
+    user = _current_user.get(threading.get_id()) or _current_user.get(threading.get_parent_id())
+    if not user:
+        user = switch_user_to_anonymous()
 
-    return switch_user_to_anonymous()
+    return user
+
+
+def get_previous_user() -> _model.AbstractUser:
+    """Get previous user
+    """
+    tid = threading.get_id()
+    p_tid = threading.get_parent_id()
+
+    user = _previous_user.get(tid) or _current_user.get(p_tid) or _previous_user.get(p_tid)
+    if not user:
+        user = get_anonymous_user()
+        _previous_user[threading.get_id()] = user
+
+    return user
 
 
 def switch_user(user: _model.AbstractUser):
     """Switch current user
     """
     tid = threading.get_id()
-    _previous_user[tid] = _current_user[tid] if tid in _current_user else get_anonymous_user()
+    p_tid = threading.get_parent_id()
+
+    _previous_user[tid] = _current_user.get(tid) or _current_user.get(p_tid) or get_anonymous_user()
     _current_user[tid] = user
 
     return user
@@ -385,10 +401,7 @@ def switch_user(user: _model.AbstractUser):
 def restore_user() -> _model.AbstractUser:
     """Switch back to the previous user
     """
-    tid = threading.get_id()
-    _current_user[tid] = _previous_user[tid] if tid in _previous_user else get_anonymous_user()
-
-    return _current_user[tid]
+    return switch_user(get_previous_user())
 
 
 def switch_user_to_system() -> _model.AbstractUser:
